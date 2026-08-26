@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Generator latest.json untuk ORB Static Content Feed.">
+  <title>Generator Feed · ORB</title>
+  <style>
+    :root{--ink:#172033;--muted:#647084;--line:#dce2ea;--soft:#f4f6f9;--card:#fff;--red:#a61f2b;--navy:#17355f;--green:#18724b;--danger:#b42318;--shadow:0 18px 50px #20365614}
+    *{box-sizing:border-box}body{margin:0;background:var(--soft);color:var(--ink);font:14px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer}a{color:inherit}.shell{width:min(1240px,calc(100% - 28px));margin:auto}
+    .topbar{position:sticky;top:0;z-index:10;border-bottom:1px solid #ffffff30;background:#172f55eF;color:white;backdrop-filter:blur(16px)}.topbar-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:68px}.brand{display:flex;align-items:center;gap:11px;text-decoration:none;font-weight:800}.brand-mark{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:linear-gradient(145deg,var(--red),#dc5041)}.brand small{display:block;color:#cad4e2;font-size:10px;letter-spacing:.08em}.top-link{color:#e9eef5;font-size:13px;text-underline-offset:3px}
+    .intro{padding:48px 0 26px}.eyebrow{margin:0 0 8px;color:var(--red);font-size:11px;font-weight:850;letter-spacing:.14em;text-transform:uppercase}.intro h1{margin:0;font:800 clamp(32px,5vw,54px)/1.04 Georgia,serif;letter-spacing:-.03em}.intro p:last-child{max-width:700px;margin:14px 0 0;color:var(--muted);font-size:16px}
+    .toolbar{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:20px;padding:12px;border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:var(--shadow)}.btn{min-height:40px;padding:0 14px;border:1px solid #cbd3df;border-radius:10px;background:#fff;color:var(--ink);font-weight:750}.btn:hover{border-color:#8c9ab0}.btn.primary{border-color:var(--navy);background:var(--navy);color:#fff}.btn.danger{color:var(--danger)}.toolbar .spacer{flex:1}.file-input{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+    .layout{display:grid;grid-template-columns:minmax(300px,400px) 1fr;gap:22px;align-items:start;padding-bottom:72px}.panel{border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:var(--shadow)}.form-panel{position:sticky;top:88px;padding:22px}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}.panel-head h2{margin:0;font-size:19px}.edit-badge{display:none;padding:4px 9px;border-radius:99px;background:#fff0dd;color:#8e4c00;font-size:11px;font-weight:800}.edit-badge.show{display:inline-block}
+    .field{margin-bottom:14px}.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:block;margin:0 0 6px;font-size:12px;font-weight:800}.hint{display:block;margin-top:5px;color:var(--muted);font-size:11px}.control{display:block;width:100%;min-height:42px;padding:9px 11px;border:1px solid #cbd3df;border-radius:10px;background:#fff;color:var(--ink);outline:none}.control:focus{border-color:#5175a4;box-shadow:0 0 0 3px #5175a422}.form-actions{display:flex;gap:9px;margin-top:20px}.form-actions .btn{flex:1}
+    .content-panel{min-width:0;padding:22px}.content-meta{color:var(--muted);font-size:13px}.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}.card{display:flex;min-width:0;flex-direction:column;overflow:hidden;border:1px solid var(--line);border-radius:17px;background:#fff;transition:transform .15s,box-shadow .15s}.card:hover{transform:translateY(-2px);box-shadow:0 14px 34px #18345418}.thumb-wrap{position:relative;background:#edf0f5}.card img{display:block;width:100%;aspect-ratio:9/16}.chip{position:absolute;top:10px;left:10px;padding:5px 8px;border-radius:99px;background:#172033dd;color:#fff;font-size:10px;font-weight:800;letter-spacing:.04em}.card-body{display:flex;flex:1;flex-direction:column;padding:14px}.card h3{margin:0 0 8px;font-size:16px;line-height:1.3}.date{color:var(--muted);font-size:12px}.url{overflow:hidden;margin:7px 0 13px;color:#50719d;font-size:11px;text-overflow:ellipsis;white-space:nowrap}.card-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:auto}.card-actions button{min-height:34px;padding:4px;border:1px solid var(--line);border-radius:8px;background:#f9fafc;font-size:11px;font-weight:750}.card-actions button:hover{background:#edf2f7}.card-actions .remove{color:var(--danger)}.empty{grid-column:1/-1;padding:54px 20px;border:1px dashed #b9c2cf;border-radius:16px;color:var(--muted);text-align:center;background:#fafbfd}.empty strong{display:block;margin-bottom:6px;color:var(--ink);font-size:16px}
+    .toast-region{position:fixed;right:18px;bottom:18px;z-index:30;display:grid;gap:8px;width:min(360px,calc(100% - 36px))}.toast{padding:13px 15px;border-radius:12px;background:#172033;color:#fff;box-shadow:0 12px 32px #101a29aa}.toast.error{background:#8f1c1c}.toast.success{background:#166443}
+    @media(max-width:900px){.layout{grid-template-columns:1fr}.form-panel{position:static}.cards{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}}@media(max-width:560px){.intro{padding-top:32px}.top-link{display:none}.toolbar .spacer{display:none}.toolbar .btn{flex:1 1 calc(50% - 9px)}.field-row{grid-template-columns:1fr}.form-panel,.content-panel{padding:16px}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.card-actions{grid-template-columns:1fr 1fr}.card-actions button{font-size:10px}}@media(max-width:390px){.cards{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header class="topbar"><div class="shell topbar-inner"><a class="brand" href="index.html"><span class="brand-mark">O</span><span>ORB Feed Generator<small>ADMIN · BIRO ORGANISASI BANTEN</small></span></a><a class="top-link" href="index.html">Lihat halaman publik</a></div></header>
+  <main class="shell">
+    <section class="intro"><p class="eyebrow">Editor tanpa kode</p><h1>Kelola konten terbaru.</h1><p>Tambah Instagram atau YouTube, periksa pratinjau, lalu unduh <strong>latest.json</strong> yang siap dipublikasikan.</p></section>
+    <div class="toolbar" aria-label="Aksi data"><button id="saveButton" class="btn primary" type="button">Simpan</button><button id="downloadButton" class="btn" type="button">Unduh latest.json</button><button id="copyButton" class="btn" type="button">Salin JSON</button><span class="spacer"></span><label for="importInput" class="btn" style="display:inline-flex;align-items:center">Impor JSON</label><input id="importInput" class="file-input" type="file" accept="application/json,.json"><button id="resetButton" class="btn danger" type="button">Reset</button></div>
+    <div class="layout">
+      <section class="panel form-panel" aria-labelledby="formTitle"><div class="panel-head"><h2 id="formTitle">Tambah konten</h2><span id="editBadge" class="edit-badge">Mode edit</span></div>
+        <form id="itemForm" novalidate>
+          <div class="field"><label for="title">Judul Konten</label><input id="title" class="control" name="title" maxlength="160" autocomplete="off" required></div>
+          <div class="field-row"><div class="field"><label for="platform">Platform</label><select id="platform" class="control" name="platform"><option value="instagram">Instagram</option><option value="youtube">YouTube</option></select></div><div class="field"><label for="type">Jenis Konten</label><select id="type" class="control" name="type"></select></div></div>
+          <div class="field"><label for="url">URL Instagram/YouTube</label><input id="url" class="control" name="url" type="url" inputmode="url" placeholder="https://…" required><span class="hint">Platform dan jenis akan dikenali otomatis.</span></div>
+          <div class="field"><label for="thumbnail">URL Thumbnail</label><input id="thumbnail" class="control" name="thumbnail" inputmode="url" placeholder="https://… atau thumbnails/gambar.webp" required><span class="hint">YouTube akan mengisi thumbnail otomatis; tetap dapat diganti.</span></div>
+          <div class="field-row"><div class="field"><label for="date">Tanggal Publikasi</label><input id="date" class="control" name="date" type="date" required></div><div class="field"><label for="time">Waktu Publikasi</label><input id="time" class="control" name="time" type="time" required></div></div>
+          <div class="field"><label for="thumbnailFit">Tampilan Thumbnail</label><select id="thumbnailFit" class="control" name="thumbnail_fit"><option value="cover">Cover</option><option value="contain">Contain</option></select></div>
+          <div class="form-actions"><button id="cancelEdit" class="btn" type="button" hidden>Batal</button><button class="btn primary" type="submit"><span id="submitLabel">Tambah konten</span></button></div>
+        </form>
+      </section>
+      <section class="panel content-panel" aria-labelledby="itemsTitle"><div class="panel-head"><div><h2 id="itemsTitle">Daftar konten</h2><div id="contentMeta" class="content-meta">0 item tersimpan</div></div></div><div id="cards" class="cards"></div></section>
+    </div>
+  </main>
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+  <script>
+  (() => {
+    'use strict';
+    const STORAGE_KEY = 'orb-static-content-feed-v1';
+    const FEED_NAME = 'Biro Organisasi Setda Provinsi Banten';
+    const ENUMS = {platform:['instagram','youtube'],type:['post','reel','video','short'],thumbnail_fit:['cover','contain']};
+    const TYPE_OPTIONS = {instagram:[['post','Post'],['reel','Reel']],youtube:[['video','Video'],['short','Short']]};
+    const TYPE_LABELS = {instagram:{post:'Instagram Post',reel:'Instagram Reels'},youtube:{video:'YouTube',short:'YouTube Shorts'}};
+    const DEFAULT_FEED = {feed_name:FEED_NAME,updated_at:'2026-08-26T10:00:00+07:00',items:[
+      {id:'dirgahayu-ri-81',platform:'instagram',type:'post',title:'Dirgahayu Republik Indonesia ke-81',url:'https://www.instagram.com/p/DcHjXbOzfUA/',thumbnail:'thumbnails/dirgahayu-ri-81.webp',thumbnail_fit:'contain',published_at:'2026-08-17T08:00:00+07:00'},
+      {id:'hari-lahir-pancasila-2026',platform:'instagram',type:'post',title:'Hari Lahir Pancasila',url:'https://www.instagram.com/p/DZAmWjZNhLS/',thumbnail:'thumbnails/hari-lahir-pancasila.webp',thumbnail_fit:'cover',published_at:'2026-06-01T07:30:00+07:00'},
+      {id:'gerakan-jumat-bersih-banten-asri',platform:'instagram',type:'reel',title:'Kegiatan Gerakan Jumat Bersih Banten Asri',url:'https://www.instagram.com/reel/DV2qZd9kVCn/',thumbnail:'thumbnails/jumat-bersih-banten-asri.webp',thumbnail_fit:'cover',published_at:'2026-07-31T08:00:00+07:00'},
+      {id:'gerakan-jumat-bersih-youtube',platform:'youtube',type:'short',title:'Gerakan Jumat Bersih - Biro Organisasi Setda Provinsi Banten',url:'https://www.youtube.com/shorts/I8wJBXXMCss',thumbnail:'https://img.youtube.com/vi/I8wJBXXMCss/maxresdefault.jpg',thumbnail_fit:'cover',published_at:'2026-08-07T09:00:00+07:00'}
+    ]};
+    const $ = (selector) => document.querySelector(selector);
+    const form=$('#itemForm'), cards=$('#cards'), platform=$('#platform'), type=$('#type'), urlInput=$('#url'), thumbnail=$('#thumbnail');
+    let feed=clone(DEFAULT_FEED), editingId=null, lastAutoThumbnail='';
+
+    function clone(value){ return JSON.parse(JSON.stringify(value)); }
+    function notify(message,kind='success'){ const el=document.createElement('div'); el.className=`toast ${kind}`; el.textContent=message; $('#toastRegion').append(el); window.setTimeout(()=>el.remove(),4200); }
+    function safeHttpUrl(value){ try{ const parsed=new URL(value); return ['http:','https:'].includes(parsed.protocol) ? parsed : null; }catch{return null;} }
+    function safeThumbnail(value){ if(safeHttpUrl(value)) return true; return typeof value==='string' && /^(?:\.\/)?thumbnails\/[A-Za-z0-9._/-]+$/.test(value) && !value.includes('..'); }
+    function isIsoDate(value){ return typeof value==='string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:\d{2})$/.test(value) && Number.isFinite(Date.parse(value)); }
+    function instagramKind(value){ const parsed=safeHttpUrl(value); if(!parsed || !/(^|\.)instagram\.com$/i.test(parsed.hostname)) return null; if(/^\/reel\//i.test(parsed.pathname)) return 'reel'; if(/^\/p\//i.test(parsed.pathname)) return 'post'; return null; }
+    function youtubeInfo(value){
+      const parsed=safeHttpUrl(value); if(!parsed) return null; let id=null,isShort=false;
+      if(/(^|\.)youtu\.be$/i.test(parsed.hostname)) id=parsed.pathname.split('/').filter(Boolean)[0];
+      else if(/(^|\.)youtube\.com$/i.test(parsed.hostname)){ const parts=parsed.pathname.split('/').filter(Boolean); if(parts[0]==='shorts'){id=parts[1];isShort=true;} else if(parts[0]==='watch') id=parsed.searchParams.get('v'); }
+      return id && /^[A-Za-z0-9_-]{6,20}$/.test(id) ? {id,isShort,thumbnail:`https://img.youtube.com/vi/${id}/maxresdefault.jpg`} : null;
+    }
+    function updateTypes(selected){ const options=TYPE_OPTIONS[platform.value]; type.replaceChildren(...options.map(([value,label])=>{const option=document.createElement('option');option.value=value;option.textContent=label;return option;})); if(options.some(([value])=>value===selected)) type.value=selected; }
+    function detectUrl(){
+      const value=urlInput.value.trim(), yt=youtubeInfo(value), ig=instagramKind(value);
+      if(yt){ platform.value='youtube'; updateTypes(yt.isShort?'short':'video'); type.value=yt.isShort?'short':'video'; if(!thumbnail.value.trim() || thumbnail.value===lastAutoThumbnail){thumbnail.value=yt.thumbnail;lastAutoThumbnail=yt.thumbnail;} }
+      else if(ig){platform.value='instagram';updateTypes(ig);type.value=ig;}
+    }
+    function slugify(value){ return value.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,52)||'konten'; }
+    function uniqueId(title,exclude){ const base=slugify(title); let candidate=base,n=2; const used=new Set(feed.items.filter(item=>item.id!==exclude).map(item=>item.id)); while(used.has(candidate)) candidate=`${base}-${n++}`; return candidate; }
+    function validatePlatformUrl(value,selectedPlatform){ const parsed=safeHttpUrl(value); if(!parsed) return 'URL harus menggunakan http atau https.'; if(selectedPlatform==='instagram' && !/(^|\.)instagram\.com$/i.test(parsed.hostname)) return 'URL Instagram tidak valid.'; if(selectedPlatform==='youtube' && !youtubeInfo(value)) return 'URL YouTube tidak valid.'; return null; }
+    function validateItem(item){
+      if(!item.title?.trim()) return 'Judul belum diisi.';
+      if(!ENUMS.platform.includes(item.platform)) return 'Platform tidak valid.';
+      if(!TYPE_OPTIONS[item.platform].some(([value])=>value===item.type)) return 'Jenis konten tidak sesuai platform.';
+      const urlError=validatePlatformUrl(item.url,item.platform); if(urlError) return urlError;
+      if(!safeThumbnail(item.thumbnail)) return 'URL thumbnail tidak valid atau menggunakan protokol tidak aman.';
+      if(!ENUMS.thumbnail_fit.includes(item.thumbnail_fit)) return 'Tampilan thumbnail tidak valid.';
+      if(!isIsoDate(item.published_at)) return 'Tanggal publikasi belum diisi atau tidak valid.';
+      if(!item.id || typeof item.id!=='string') return 'ID konten tidak valid.';
+      return null;
+    }
+    function validateFeed(candidate){
+      if(!candidate || typeof candidate!=='object' || Array.isArray(candidate)) throw new Error('File JSON tidak memiliki struktur feed yang valid.');
+      if(typeof candidate.feed_name!=='string' || !candidate.feed_name.trim()) throw new Error('feed_name belum diisi.');
+      if(!Array.isArray(candidate.items)) throw new Error('File JSON tidak memiliki daftar items yang valid.');
+      const ids=new Set(); candidate.items.forEach((item,index)=>{ const error=validateItem(item); if(error) throw new Error(`Item ${index+1}: ${error}`); if(ids.has(item.id)) throw new Error(`ID “${item.id}” digunakan lebih dari sekali.`); ids.add(item.id); });
+      if(candidate.updated_at!==undefined && !isIsoDate(candidate.updated_at)) throw new Error('updated_at tidak menggunakan tanggal ISO-8601 yang valid.');
+      return candidate;
+    }
+    function publishedAtFromForm(){ const date=$('#date').value,time=$('#time').value; return date&&time ? `${date}T${time}:00+07:00` : ''; }
+    function formatDate(value){ return new Intl.DateTimeFormat('id-ID',{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Jakarta'}).format(new Date(value)); }
+    function render(){
+      $('#contentMeta').textContent=`${feed.items.length} item tersimpan`;
+      if(!feed.items.length){ const empty=document.createElement('div'); empty.className='empty'; const strong=document.createElement('strong');strong.textContent='Belum ada konten';empty.append(strong,document.createTextNode('Gunakan formulir untuk menambahkan item pertama.'));cards.replaceChildren(empty);return; }
+      cards.replaceChildren(...feed.items.map((item,index)=>{
+        const article=document.createElement('article');article.className='card';article.dataset.id=item.id;
+        const wrap=document.createElement('div');wrap.className='thumb-wrap';const img=document.createElement('img');img.src=item.thumbnail;img.alt='';img.loading='lazy';img.style.objectFit=item.thumbnail_fit==='contain'?'contain':'cover';const chip=document.createElement('span');chip.className='chip';chip.textContent=TYPE_LABELS[item.platform]?.[item.type]||item.type;wrap.append(img,chip);
+        const body=document.createElement('div');body.className='card-body';const titleEl=document.createElement('h3');titleEl.textContent=item.title;const date=document.createElement('div');date.className='date';date.textContent=formatDate(item.published_at);const url=document.createElement('div');url.className='url';url.title=item.url;url.textContent=item.url;const actions=document.createElement('div');actions.className='card-actions';
+        [['edit','Edit'],['duplicate','Duplikat'],['up','Naik'],['down','Turun'],['remove','Hapus']].forEach(([action,label])=>{const button=document.createElement('button');button.type='button';button.dataset.action=action;button.dataset.id=item.id;button.textContent=label;if(action==='remove')button.className='remove';if(action==='up'&&index===0)button.disabled=true;if(action==='down'&&index===feed.items.length-1)button.disabled=true;actions.append(button);});
+        body.append(titleEl,date,url,actions);article.append(wrap,body);return article;
+      }));
+    }
+    function persist(showMessage=false){ try{localStorage.setItem(STORAGE_KEY,JSON.stringify(feed));if(showMessage)notify('Perubahan tersimpan di browser.');return true;}catch{notify('Penyimpanan browser tidak tersedia. Unduh JSON agar perubahan tidak hilang.','error');return false;} }
+    function resetForm(){ form.reset();platform.value='instagram';updateTypes('post');$('#thumbnailFit').value='cover';editingId=null;lastAutoThumbnail='';$('#formTitle').textContent='Tambah konten';$('#submitLabel').textContent='Tambah konten';$('#editBadge').classList.remove('show');$('#cancelEdit').hidden=true;setDateDefaults(); }
+    function setDateDefaults(){ const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).reduce((a,p)=>(a[p.type]=p.value,a),{}); $('#date').value=`${parts.year}-${parts.month}-${parts.day}`;$('#time').value=`${parts.hour}:${parts.minute}`; }
+    function editItem(id){ const item=feed.items.find(entry=>entry.id===id);if(!item)return;editingId=id;$('#title').value=item.title;platform.value=item.platform;updateTypes(item.type);type.value=item.type;urlInput.value=item.url;thumbnail.value=item.thumbnail;$('#thumbnailFit').value=item.thumbnail_fit;$('#date').value=item.published_at.slice(0,10);$('#time').value=item.published_at.slice(11,16);$('#formTitle').textContent='Edit konten';$('#submitLabel').textContent='Simpan perubahan';$('#editBadge').classList.add('show');$('#cancelEdit').hidden=false;window.scrollTo({top:0,behavior:'smooth'}); }
+    function moveItem(id,direction){ const index=feed.items.findIndex(item=>item.id===id),target=index+direction;if(index<0||target<0||target>=feed.items.length)return;[feed.items[index],feed.items[target]]=[feed.items[target],feed.items[index]];persist();render(); }
+    function jakartaIsoNow(){ const p=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).reduce((a,x)=>(a[x.type]=x.value,a),{});return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}:${p.second}+07:00`; }
+    function exportFeed(){ const output={...feed,feed_name:feed.feed_name||FEED_NAME,updated_at:jakartaIsoNow(),items:feed.items.map(item=>({...item}))};validateFeed(output);return output; }
+    function jsonText(){return `${JSON.stringify(exportFeed(),null,2)}\n`;}
+
+    platform.addEventListener('change',()=>updateTypes());urlInput.addEventListener('input',detectUrl);thumbnail.addEventListener('input',()=>{if(thumbnail.value!==lastAutoThumbnail)lastAutoThumbnail='';});
+    form.addEventListener('submit',(event)=>{event.preventDefault();const previous=editingId?feed.items.find(item=>item.id===editingId):null;const item={...(previous||{}),id:previous?.id||uniqueId($('#title').value),platform:platform.value,type:type.value,title:$('#title').value.trim(),url:urlInput.value.trim(),thumbnail:thumbnail.value.trim(),thumbnail_fit:$('#thumbnailFit').value,published_at:publishedAtFromForm()};const error=validateItem(item);if(error){notify(error,'error');return;}if(editingId){feed.items[feed.items.findIndex(entry=>entry.id===editingId)]=item;notify('Konten berhasil diperbarui.');}else{feed.items.push(item);notify('Konten berhasil ditambahkan.');}persist();render();resetForm();});
+    cards.addEventListener('click',(event)=>{const button=event.target.closest('button[data-action]');if(!button)return;const {action,id}=button.dataset,index=feed.items.findIndex(item=>item.id===id);if(index<0)return;if(action==='edit')editItem(id);if(action==='duplicate'){const source=feed.items[index],copy={...source,id:uniqueId(`${source.id}-salinan`),title:`${source.title} (Salinan)`};feed.items.splice(index+1,0,copy);persist();render();notify('Konten berhasil diduplikat.');}if(action==='up')moveItem(id,-1);if(action==='down')moveItem(id,1);if(action==='remove'&&confirm(`Hapus “${feed.items[index].title}”?`)){feed.items.splice(index,1);if(editingId===id)resetForm();persist();render();notify('Konten berhasil dihapus.');}});
+    $('#cancelEdit').addEventListener('click',resetForm);$('#saveButton').addEventListener('click',()=>persist(true));
+    $('#resetButton').addEventListener('click',()=>{if(!confirm('Reset seluruh data ke contoh awal? Perubahan yang belum diunduh akan hilang.'))return;feed=clone(DEFAULT_FEED);persist();render();resetForm();notify('Data dikembalikan ke contoh awal.');});
+    $('#importInput').addEventListener('change',async(event)=>{const file=event.target.files?.[0];event.target.value='';if(!file)return;try{const parsed=JSON.parse(await file.text());validateFeed(parsed);feed=clone(parsed);persist();render();resetForm();notify(`${feed.items.length} item berhasil diimpor.`);}catch(error){notify(error instanceof SyntaxError?'File bukan JSON yang valid.':error.message,'error');}});
+    $('#downloadButton').addEventListener('click',()=>{try{const blob=new Blob([jsonText()],{type:'application/json'}),downloadUrl=URL.createObjectURL(blob),link=document.createElement('a');link.href=downloadUrl;link.download='latest.json';document.body.append(link);link.click();link.remove();URL.revokeObjectURL(downloadUrl);notify('latest.json berhasil diunduh.');}catch(error){notify(`JSON tidak dapat diunduh: ${error.message}`,'error');}});
+    $('#copyButton').addEventListener('click',async()=>{let text;try{text=jsonText();if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text);}else{const area=document.createElement('textarea');area.value=text;area.style.position='fixed';area.style.opacity='0';document.body.append(area);area.select();if(!document.execCommand('copy'))throw new Error('salin otomatis ditolak browser');area.remove();}notify('JSON berhasil disalin.');}catch(error){notify(`JSON belum dapat disalin: ${error.message}. Gunakan tombol Unduh latest.json.`, 'error');}});
+    try{const saved=localStorage.getItem(STORAGE_KEY);if(saved){const parsed=JSON.parse(saved);validateFeed(parsed);feed=parsed;}}catch{feed=clone(DEFAULT_FEED);notify('Data tersimpan tidak valid; contoh awal digunakan.','error');}
+    updateTypes('post');setDateDefaults();render();
+  })();
+  </script>
+</body>
+</html>

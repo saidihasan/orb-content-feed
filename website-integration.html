@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Demonstrasi dan kode integrasi ORB Content Feed.">
+  <title>Contoh Integrasi Website · ORB</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#f5f6f8;color:#172033;font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}.demo-top{background:#17355f;color:#fff}.demo-shell{width:min(1140px,calc(100% - 30px));margin:auto}.demo-nav{display:flex;align-items:center;justify-content:space-between;min-height:64px}.demo-nav a{color:#fff;text-underline-offset:3px}.demo-title{padding:48px 0 26px}.demo-title p{max-width:680px;color:#59677a}.demo-title h1{margin:0 0 10px;font:800 clamp(32px,5vw,52px)/1.05 Georgia,serif}.site-preview{overflow:hidden;border:1px solid #d9dee6;border-radius:18px;background:#fff;box-shadow:0 18px 45px #20334f18}.site-banner{display:block;width:100%;max-height:360px;object-fit:cover}.main.pt-3.mt-3{padding-top:16px;margin-top:16px}.container{width:min(1080px,calc(100% - 28px));margin:auto}.row.pb-1{padding:26px 0 44px}.existing-title{font:800 28px Georgia,serif}.existing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.existing-card{min-height:110px;padding:18px;border-radius:13px;background:#edf1f6;color:#566274}.copy-panel{margin:26px 0 70px;padding:22px;border:1px solid #d9dee6;border-radius:18px;background:#fff}.copy-head{display:flex;align-items:center;justify-content:space-between;gap:16px}.copy-head h2{margin:0;font:800 28px Georgia,serif}.copy-btn{min-height:42px;padding:0 16px;border:0;border-radius:10px;background:#17355f;color:#fff;font-weight:750;cursor:pointer}.copy-note{color:#5f6d80}.code-box{display:block;width:100%;height:310px;padding:14px;border:1px solid #ccd3dd;border-radius:12px;background:#111827;color:#d8e3f0;font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;resize:vertical}.copy-status{min-height:24px;margin:8px 0 0;color:#176744;font-weight:700}@media(max-width:700px){.existing-grid{grid-template-columns:1fr}.copy-head{align-items:flex-start;flex-direction:column}}
+  </style>
+  <style id="integrationStyles">
+    #orb-content-feed{position:relative;margin:28px 0 34px;padding:24px 0;border-top:1px solid #e1e5eb;border-bottom:1px solid #e1e5eb;color:#172033;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+    #orb-content-feed *{box-sizing:border-box}
+    #orb-content-feed .orb-feed-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:16px}
+    #orb-content-feed .orb-feed-kicker{margin:0 0 4px;color:#a61f2b;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+    #orb-content-feed .orb-feed-title{margin:0;font:800 clamp(24px,4vw,34px)/1.1 Georgia,serif}
+    #orb-content-feed .orb-feed-controls{display:flex;gap:8px}
+    #orb-content-feed .orb-scroll{display:grid;place-items:center;width:40px;height:40px;border:1px solid #cbd3de;border-radius:50%;background:#fff;color:#17355f;font-size:20px;cursor:pointer}
+    #orb-content-feed .orb-scroll:hover{background:#f1f4f8}
+    #orb-content-feed .orb-track{display:grid;grid-auto-columns:minmax(220px,270px);grid-auto-flow:column;gap:16px;overflow-x:auto;padding:2px 2px 14px;scroll-behavior:smooth;scroll-snap-type:x mandatory;overscroll-behavior-inline:contain;touch-action:pan-x;scrollbar-width:thin}
+    #orb-content-feed .orb-card{overflow:hidden;border:1px solid #dce2e9;border-radius:16px;background:#fff;box-shadow:0 10px 28px #20344e12;scroll-snap-align:start}
+    #orb-content-feed .orb-link{display:block;color:inherit;text-decoration:none}
+    #orb-content-feed .orb-image{display:block;width:100%;aspect-ratio:9/16;background:#edf0f4}
+    #orb-content-feed .orb-body{padding:14px}
+    #orb-content-feed .orb-label{color:#a61f2b;font-size:10px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
+    #orb-content-feed .orb-item-title{margin:6px 0 0;font-size:16px;line-height:1.35}
+    @media(max-width:640px){#orb-content-feed{margin:20px 0 26px}#orb-content-feed .orb-track{grid-auto-columns:minmax(190px,78vw)}#orb-content-feed .orb-scroll{width:36px;height:36px}}
+  </style>
+</head>
+<body>
+  <header class="demo-top"><div class="demo-shell demo-nav"><strong>ORB · Contoh Integrasi</strong><a href="index.html">Kembali ke diagnosis</a></div></header>
+  <main class="demo-shell">
+    <section class="demo-title"><h1>Pratinjau di website utama</h1><p>Feed diletakkan setelah banner dan sebelum konten website yang sudah ada. Demonstrasi ini sengaja memakai fallback sampai URL Cloudflare Pages diganti.</p></section>
+    <div class="site-preview">
+      <img class="site-banner" src="https://biroorganisasi.bantenprov.go.id/storage/banten/banner-77c1742e-2ddd-45f9-b1bf-466a4c4a5f72.jpg" alt="Banner Biro Organisasi Setda Provinsi Banten">
+      <div class="main pt-3 mt-3"><div class="container"><div class="row pb-1"><div><h2 class="existing-title">Berita dan informasi</h2><div class="existing-grid"><div class="existing-card">Konten website yang sudah ada tetap berada di tempatnya.</div><div class="existing-card">Feed tidak mengubah struktur konten lain.</div><div class="existing-card">Tampilan menyesuaikan perangkat pengunjung.</div></div></div></div></div></div>
+    </div>
+    <section class="copy-panel"><div class="copy-head"><h2>Kode siap salin-tempel</h2><button id="copyIntegration" class="copy-btn" type="button">Salin kode integrasi</button></div><p class="copy-note">Salin seluruh blok ini ke website utama, lalu ganti <code>https://CHANGE-ME.pages.dev/latest.json</code> dengan domain Cloudflare Pages yang sebenarnya.</p><textarea id="integrationCode" class="code-box" readonly spellcheck="false" aria-label="Kode integrasi lengkap"></textarea><p id="copyStatus" class="copy-status" role="status"></p></section>
+  </main>
+  <script id="integrationRuntime">
+  (() => {
+    'use strict';
+    const contentFeedUrl =
+      'https://CHANGE-ME.pages.dev/latest.json';
+    const maxItems = 3;
+    const targetSelector = 'div.main.pt-3.mt-3 .container .row.pb-1';
+    const fallbackItems = [
+      {id:'fallback-ri-81',platform:'instagram',type:'post',title:'Dirgahayu Republik Indonesia ke-81',url:'https://www.instagram.com/p/DcHjXbOzfUA/',thumbnail:'https://biroorganisasi.bantenprov.go.id/storage/banten/banner-77c1742e-2ddd-45f9-b1bf-466a4c4a5f72.jpg',thumbnail_fit:'contain',published_at:'2026-08-17T08:00:00+07:00'},
+      {id:'fallback-jumat-bersih',platform:'youtube',type:'short',title:'Gerakan Jumat Bersih - Biro Organisasi Setda Provinsi Banten',url:'https://www.youtube.com/shorts/I8wJBXXMCss',thumbnail:'https://img.youtube.com/vi/I8wJBXXMCss/maxresdefault.jpg',thumbnail_fit:'cover',published_at:'2026-08-07T09:00:00+07:00'},
+      {id:'fallback-pancasila',platform:'instagram',type:'post',title:'Hari Lahir Pancasila',url:'https://www.instagram.com/p/DZAmWjZNhLS/',thumbnail:'https://biroorganisasi.bantenprov.go.id/storage/banten/banner-77c1742e-2ddd-45f9-b1bf-466a4c4a5f72.jpg',thumbnail_fit:'cover',published_at:'2026-06-01T07:30:00+07:00'}
+    ];
+    const labels={instagram:{post:'Instagram Post',reel:'Instagram Reels'},youtube:{video:'YouTube',short:'YouTube Shorts'}};
+
+    function httpUrl(value,base){try{const parsed=new URL(value,base);return ['http:','https:'].includes(parsed.protocol)?parsed.href:null;}catch{return null;}}
+    function validItem(item,base){return Boolean(item&&typeof item.title==='string'&&item.title.trim()&&labels[item.platform]?.[item.type]&&['cover','contain'].includes(item.thumbnail_fit)&&Number.isFinite(Date.parse(item.published_at))&&httpUrl(item.url,base)&&httpUrl(item.thumbnail,base));}
+    function createCard(item,base){
+      const article=document.createElement('article');article.className='orb-card';
+      const link=document.createElement('a');link.className='orb-link';link.href=httpUrl(item.url,base);link.target='_blank';link.rel='noopener noreferrer';link.setAttribute('aria-label',`Buka ${item.title}`);
+      const image=document.createElement('img');image.className='orb-image';image.src=httpUrl(item.thumbnail,base);image.alt='';image.loading='lazy';image.style.objectFit=item.thumbnail_fit==='contain'?'contain':'cover';
+      const body=document.createElement('div');body.className='orb-body';const label=document.createElement('div');label.className='orb-label';label.textContent=labels[item.platform][item.type];const title=document.createElement('h3');title.className='orb-item-title';title.textContent=item.title;
+      body.append(label,title);link.append(image,body);article.append(link);return article;
+    }
+    function install(items,base){
+      const target=document.querySelector(targetSelector);if(!target||document.querySelector('#orb-content-feed'))return;
+      const valid=items.filter(item=>validItem(item,base)).sort((a,b)=>Date.parse(b.published_at)-Date.parse(a.published_at)).slice(0,maxItems);if(!valid.length)return;
+      const section=document.createElement('section');section.id='orb-content-feed';section.setAttribute('aria-labelledby','orb-feed-heading');
+      const head=document.createElement('div');head.className='orb-feed-head';const titles=document.createElement('div');const kicker=document.createElement('p');kicker.className='orb-feed-kicker';kicker.textContent='Biro Organisasi Banten';const heading=document.createElement('h2');heading.id='orb-feed-heading';heading.className='orb-feed-title';heading.textContent='Konten Terbaru';titles.append(kicker,heading);
+      const controls=document.createElement('div');controls.className='orb-feed-controls';const previous=document.createElement('button');previous.type='button';previous.className='orb-scroll';previous.setAttribute('aria-label','Geser konten ke kiri');previous.textContent='‹';const next=document.createElement('button');next.type='button';next.className='orb-scroll';next.setAttribute('aria-label','Geser konten ke kanan');next.textContent='›';controls.append(previous,next);head.append(titles,controls);
+      const track=document.createElement('div');track.className='orb-track';track.append(...valid.map(item=>createCard(item,base)));previous.addEventListener('click',()=>track.scrollBy({left:-track.clientWidth*.8,behavior:'smooth'}));next.addEventListener('click',()=>track.scrollBy({left:track.clientWidth*.8,behavior:'smooth'}));section.append(head,track);target.parentNode.insertBefore(section,target);
+    }
+    async function load(){try{const response=await fetch(contentFeedUrl,{headers:{Accept:'application/json'}});if(!response.ok)throw new Error(`HTTP ${response.status}`);const data=await response.json();if(!data||!Array.isArray(data.items))throw new Error('data.items bukan array');install(data.items,contentFeedUrl);}catch(error){console.error('ORB Content Feed gagal dimuat; fallback digunakan.',error);install(fallbackItems,window.location.href);}}
+    load();
+  })();
+  </script>
+  <script>
+    (()=>{const box=document.querySelector('#integrationCode'),status=document.querySelector('#copyStatus');box.value=`${document.querySelector('#integrationStyles').outerHTML}\n${document.querySelector('#integrationRuntime').outerHTML}`;document.querySelector('#copyIntegration').addEventListener('click',async()=>{try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(box.value);else{box.focus();box.select();if(!document.execCommand('copy'))throw new Error('Clipboard API tidak tersedia');}status.textContent='Kode integrasi berhasil disalin.';}catch{status.textContent='Salin otomatis tidak tersedia. Pilih isi kotak kode lalu salin secara manual.';}});})();
+  </script>
+</body>
+</html>

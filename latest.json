@@ -1,0 +1,46 @@
+{
+  "feed_name": "Biro Organisasi Setda Provinsi Banten",
+  "updated_at": "2026-08-26T10:00:00+07:00",
+  "items": [
+    {
+      "id": "dirgahayu-ri-81",
+      "platform": "instagram",
+      "type": "post",
+      "title": "Dirgahayu Republik Indonesia ke-81",
+      "url": "https://www.instagram.com/p/DcHjXbOzfUA/",
+      "thumbnail": "thumbnails/dirgahayu-ri-81.webp",
+      "thumbnail_fit": "contain",
+      "published_at": "2026-08-17T08:00:00+07:00"
+    },
+    {
+      "id": "hari-lahir-pancasila-2026",
+      "platform": "instagram",
+      "type": "post",
+      "title": "Hari Lahir Pancasila",
+      "url": "https://www.instagram.com/p/DZAmWjZNhLS/",
+      "thumbnail": "thumbnails/hari-lahir-pancasila.webp",
+      "thumbnail_fit": "cover",
+      "published_at": "2026-06-01T07:30:00+07:00"
+    },
+    {
+      "id": "gerakan-jumat-bersih-banten-asri",
+      "platform": "instagram",
+      "type": "reel",
+      "title": "Kegiatan Gerakan Jumat Bersih Banten Asri",
+      "url": "https://www.instagram.com/reel/DV2qZd9kVCn/",
+      "thumbnail": "thumbnails/jumat-bersih-banten-asri.webp",
+      "thumbnail_fit": "cover",
+      "published_at": "2026-07-31T08:00:00+07:00"
+    },
+    {
+      "id": "gerakan-jumat-bersih-youtube",
+      "platform": "youtube",
+      "type": "short",
+      "title": "Gerakan Jumat Bersih - Biro Organisasi Setda Provinsi Banten",
+      "url": "https://www.youtube.com/shorts/I8wJBXXMCss",
+      "thumbnail": "https://img.youtube.com/vi/I8wJBXXMCss/maxresdefault.jpg",
+      "thumbnail_fit": "cover",
+      "published_at": "2026-08-07T09:00:00+07:00"
+    }
+  ]
+}
