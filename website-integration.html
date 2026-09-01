@@ -31,18 +31,18 @@
 <body>
   <header class="demo-top"><div class="demo-shell demo-nav"><strong>ORB · Contoh Integrasi</strong><a href="index.html">Kembali ke diagnosis</a></div></header>
   <main class="demo-shell">
-    <section class="demo-title"><h1>Pratinjau di website utama</h1><p>Feed diletakkan setelah banner dan sebelum konten website yang sudah ada. Demonstrasi ini sengaja memakai fallback sampai URL Cloudflare Pages diganti.</p></section>
+    <section class="demo-title"><h1>Pratinjau di website utama</h1><p>Feed production diletakkan setelah banner dan sebelum konten website yang sudah ada. Konten fallback otomatis digunakan jika feed sementara tidak tersedia.</p></section>
     <div class="site-preview">
       <img class="site-banner" src="https://biroorganisasi.bantenprov.go.id/storage/banten/banner-77c1742e-2ddd-45f9-b1bf-466a4c4a5f72.jpg" alt="Banner Biro Organisasi Setda Provinsi Banten">
       <div class="main pt-3 mt-3"><div class="container"><div class="row pb-1"><div><h2 class="existing-title">Berita dan informasi</h2><div class="existing-grid"><div class="existing-card">Konten website yang sudah ada tetap berada di tempatnya.</div><div class="existing-card">Feed tidak mengubah struktur konten lain.</div><div class="existing-card">Tampilan menyesuaikan perangkat pengunjung.</div></div></div></div></div></div>
     </div>
-    <section class="copy-panel"><div class="copy-head"><h2>Kode siap salin-tempel</h2><button id="copyIntegration" class="copy-btn" type="button">Salin kode integrasi</button></div><p class="copy-note">Salin seluruh blok ini ke website utama, lalu ganti <code>https://CHANGE-ME.pages.dev/latest.json</code> dengan domain Cloudflare Pages yang sebenarnya.</p><textarea id="integrationCode" class="code-box" readonly spellcheck="false" aria-label="Kode integrasi lengkap"></textarea><p id="copyStatus" class="copy-status" role="status"></p></section>
+    <section class="copy-panel"><div class="copy-head"><h2>Kode siap salin-tempel</h2><button id="copyIntegration" class="copy-btn" type="button">Salin kode integrasi</button></div><p class="copy-note">Blok ini sudah menggunakan feed production <code>https://orb-content-feed.saidihasan.workers.dev/latest.json</code> dan siap ditempel ke website utama.</p><textarea id="integrationCode" class="code-box" readonly spellcheck="false" aria-label="Kode integrasi lengkap"></textarea><p id="copyStatus" class="copy-status" role="status"></p></section>
   </main>
   <script id="integrationRuntime">
   (() => {
     'use strict';
     const contentFeedUrl =
-      'https://CHANGE-ME.pages.dev/latest.json';
+      'https://orb-content-feed.saidihasan.workers.dev/latest.json';
     const maxItems = 3;
     const targetSelector = 'div.main.pt-3.mt-3 .container .row.pb-1';
     const fallbackItems = [

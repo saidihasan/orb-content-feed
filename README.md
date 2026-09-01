@@ -8,10 +8,11 @@ Proyek ini hanya menggunakan HTML, CSS, dan JavaScript vanilla. Tidak ada npm, b
 
 - `index.html` — halaman diagnosis publik dan pratinjau tiga konten terbaru.
 - `generator.html` — editor admin, penyimpanan browser, impor, dan ekspor JSON.
+- `feed-loader.js` — pemuat feed production dengan penanganan kegagalan yang aman.
 - `latest.json` — data feed publik; boleh menyimpan seluruh riwayat konten.
 - `website-integration.html` — demonstrasi dan blok integrasi siap salin-tempel.
 - `thumbnails/` — aset thumbnail lokal untuk Instagram.
-- `_headers` — CORS dan cache headers untuk Cloudflare Pages.
+- `_headers` — security, CORS, dan cache headers untuk Cloudflare Workers Static Assets.
 - `.gitignore` — file lokal yang tidak boleh masuk repository.
 
 ## Menjalankan secara lokal
@@ -62,13 +63,13 @@ Gunakan ID unik dan stabil serta tanggal ISO-8601 dengan offset `+07:00`. Urutan
 ## Workflow admin harian
 
 1. Buka `generator.html`.
-2. Impor `latest.json` yang sedang digunakan.
+2. Klik **Muat Feed Aktif** untuk mengambil data production, atau gunakan **Impor JSON** untuk file lokal.
 3. Tambah, edit, hapus, duplikat, atau atur posisi konten.
 4. Tambahkan thumbnail ke folder `thumbnails/` jika diperlukan.
 5. Unduh `latest.json` dari generator.
 6. Ganti `latest.json` di repository dan tambahkan thumbnail baru.
 7. Commit dan push perubahan.
-8. Cloudflare Pages melakukan deployment ulang otomatis.
+8. Cloudflare Workers melakukan deployment ulang otomatis.
 
 Data kerja tersimpan di `localStorage` pada browser. Tetap unduh JSON sebagai salinan utama sebelum berpindah perangkat atau membersihkan data browser.
 
@@ -106,25 +107,26 @@ git push
 
 Jika repository sudah mempunyai remote `origin`, pertahankan dan gunakan remote tersebut. Jangan menyimpan password, Personal Access Token, API key, cookie, atau credential lain di file proyek maupun commit.
 
-## Cloudflare Pages
+## Cloudflare Workers
 
-Di Cloudflare Dashboard pilih **Workers & Pages → Create application → Pages → Connect to Git → GitHub → orb-content-feed**.
+Di Cloudflare Dashboard pilih **Workers & Pages → Create application → Import a repository → GitHub → orb-content-feed**.
 
 Gunakan konfigurasi:
 
 - Production branch: `main`
 - Framework preset: `None`
-- Build command: `exit 0`
-- Build output directory: `.`
+- Build command: kosong (`None`)
+- Deploy command: `npx wrangler deploy`
+- Root directory: `/`
 
-Sesudah Cloudflare memberi domain, buka `website-integration.html` dan ganti:
+Feed production yang digunakan generator dan integrasi website adalah:
 
 ```js
 const contentFeedUrl =
-  'https://CHANGE-ME.pages.dev/latest.json';
+  'https://orb-content-feed.saidihasan.workers.dev/latest.json';
 ```
 
-dengan URL deployment yang sebenarnya, misalnya `https://domain-yang-diberikan.pages.dev/latest.json`. Jangan menebak domain sebelum Cloudflare membuatnya. Tombol **Salin kode integrasi** menyediakan blok yang siap ditempel ke website utama.
+`website-integration.html` sudah memakai URL tersebut. Tombol **Salin kode integrasi** menyediakan blok yang siap ditempel ke website utama. Generator juga menampilkan URL aktif serta tautan langsung ke feed publik dan halaman diagnosis.
 
 ## Troubleshooting
 
@@ -133,6 +135,6 @@ dengan URL deployment yang sebenarnya, misalnya `https://domain-yang-diberikan.p
 - **YouTube tidak terdeteksi:** gunakan format `youtube.com/watch?v=…`, `youtu.be/…`, atau `youtube.com/shorts/…`.
 - **Impor ditolak:** pesan generator menunjukkan item dan field yang tidak valid; data aktif tidak diganti.
 - **Salin JSON ditolak browser:** gunakan tombol **Unduh latest.json**.
-- **Website utama masih menampilkan fallback:** ganti `contentFeedUrl` dengan domain Cloudflare Pages yang benar dan periksa CORS `_headers`.
+- **Website utama masih menampilkan fallback:** periksa akses ke `https://orb-content-feed.saidihasan.workers.dev/latest.json` dan header CORS di `_headers`.
 
 Feed ini bersifat publik. Jangan pernah memasukkan credential atau data rahasia ke `latest.json`, source code, thumbnail metadata, maupun riwayat Git.

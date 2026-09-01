@@ -1,7 +1,13 @@
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; connect-src 'self' https://orb-content-feed.saidihasan.workers.dev; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+  Permissions-Policy: camera=(), geolocation=(), microphone=()
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+
 /latest.json
   Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=300
-  X-Content-Type-Options: nosniff
 
 /thumbnails/*
   Cache-Control: public, max-age=604800
