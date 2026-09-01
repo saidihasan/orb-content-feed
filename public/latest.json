@@ -1,0 +1,46 @@
+{
+  "feed_name": "Biro Organisasi Setda Provinsi Banten",
+  "updated_at": "2026-09-01T12:00:01+07:00",
+  "items": [
+    {
+      "id": "selamat-memperingati-maulid-nabi-muhammad-saw-1448-h",
+      "platform": "instagram",
+      "type": "post",
+      "title": "Selamat Memperingati Maulid Nabi Muhammad SAW 1448 H / 2026 M.",
+      "url": "https://www.instagram.com/p/Dcck2MyRnZZ/",
+      "thumbnail": "api/instagram-thumbnail/Dcck2MyRnZZ",
+      "thumbnail_fit": "cover",
+      "published_at": "2026-09-01T11:56:00+07:00"
+    },
+    {
+      "id": "juara-umum-dalam-kegiatan-semarak-lomba-kemerdekaan-",
+      "platform": "instagram",
+      "type": "post",
+      "title": "Juara Umum dalam kegiatan Semarak Lomba Kemerdekaan Republik Indonesia ke-81 di Lingkungan Sekretariat Daerah Provinsi Banten.",
+      "url": "https://www.instagram.com/p/DcbH07_uUlm/",
+      "thumbnail": "api/instagram-thumbnail/DcbH07_uUlm",
+      "thumbnail_fit": "cover",
+      "published_at": "2026-09-01T11:56:00+07:00"
+    },
+    {
+      "id": "semangat-kemerdekaan-perkuat-kinerja-untuk-masyaraka",
+      "platform": "instagram",
+      "type": "post",
+      "title": "SEMANGAT KEMERDEKAAN, PERKUAT KINERJA UNTUK MASYARAKAT",
+      "url": "https://www.instagram.com/p/DcSGTt1OPth/",
+      "thumbnail": "api/instagram-thumbnail/DcSGTt1OPth",
+      "thumbnail_fit": "cover",
+      "published_at": "2026-09-01T11:55:00+07:00"
+    },
+    {
+      "id": "gerakan-jumat-bersih-youtube",
+      "platform": "youtube",
+      "type": "short",
+      "title": "Gerakan Jumat Bersih - Biro Organisasi Setda Provinsi Banten",
+      "url": "https://www.youtube.com/shorts/I8wJBXXMCss",
+      "thumbnail": "https://img.youtube.com/vi/I8wJBXXMCss/maxresdefault.jpg",
+      "thumbnail_fit": "cover",
+      "published_at": "2026-08-07T09:00:00+07:00"
+    }
+  ]
+}

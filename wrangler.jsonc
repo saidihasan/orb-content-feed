@@ -1,12 +1,39 @@
 {
   "name": "orb-content-feed",
+  "main": "worker.js",
   "compatibility_date": "2026-08-31",
   "workers_dev": true,
   "preview_urls": false,
   "observability": {
     "enabled": true
   },
+  "secrets": {
+    "required": [
+      "ADMIN_USERNAME",
+      "ADMIN_PASSWORD_SALT",
+      "ADMIN_PASSWORD_HASH",
+      "SESSION_SIGNING_KEY"
+    ]
+  },
+  "ratelimits": [
+    {
+      "name": "LOGIN_RATE_LIMITER",
+      "namespace_id": "2026083101",
+      "simple": {
+        "limit": 5,
+        "period": 60
+      }
+    }
+  ],
   "assets": {
-    "directory": "."
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/api/*",
+      "/login",
+      "/generator",
+      "/generator/*",
+      "/generator.html"
+    ]
   }
 }

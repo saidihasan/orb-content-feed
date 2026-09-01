@@ -1,0 +1,11 @@
+{
+  "name": "orb-static-content-feed",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "auth:setup": "node scripts/generate-auth-secrets.mjs",
+    "auth:setup:production": "node scripts/setup-production-auth.mjs",
+    "auth:verify:production": "node scripts/verify-production-auth.mjs",
+    "test": "node --test"
+  }
+}
