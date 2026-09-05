@@ -31,7 +31,7 @@
 <body>
   <header class="demo-top"><div class="demo-shell demo-nav"><strong>ORB · Contoh Integrasi</strong><a href="index.html">Kembali ke diagnosis</a></div></header>
   <main class="demo-shell">
-    <section class="demo-title"><h1>Pratinjau di website utama</h1><p>Feed production diletakkan setelah banner dan sebelum konten website yang sudah ada. Konten fallback otomatis digunakan jika feed sementara tidak tersedia.</p></section>
+    <section class="demo-title"><h1>Pratinjau di website utama</h1><p>Feed Instagram, YouTube, dan TikTok diletakkan setelah banner dan sebelum konten website yang sudah ada. Konten fallback otomatis digunakan jika feed sementara tidak tersedia.</p></section>
     <div class="site-preview">
       <img class="site-banner" src="https://biroorganisasi.bantenprov.go.id/storage/banten/banner-77c1742e-2ddd-45f9-b1bf-466a4c4a5f72.jpg" alt="Banner Biro Organisasi Setda Provinsi Banten">
       <div class="main pt-3 mt-3"><div class="container"><div class="row pb-1"><div><h2 class="existing-title">Berita dan informasi</h2><div class="existing-grid"><div class="existing-card">Konten website yang sudah ada tetap berada di tempatnya.</div><div class="existing-card">Feed tidak mengubah struktur konten lain.</div><div class="existing-card">Tampilan menyesuaikan perangkat pengunjung.</div></div></div></div></div></div>
@@ -50,10 +50,11 @@
       {id:'fallback-jumat-bersih',platform:'youtube',type:'short',title:'Gerakan Jumat Bersih - Biro Organisasi Setda Provinsi Banten',url:'https://www.youtube.com/shorts/I8wJBXXMCss',thumbnail:'https://img.youtube.com/vi/I8wJBXXMCss/maxresdefault.jpg',thumbnail_fit:'cover',published_at:'2026-08-07T09:00:00+07:00'},
       {id:'fallback-pancasila',platform:'instagram',type:'post',title:'Hari Lahir Pancasila',url:'https://www.instagram.com/p/DZAmWjZNhLS/',thumbnail:'https://biroorganisasi.bantenprov.go.id/storage/banten/banner-77c1742e-2ddd-45f9-b1bf-466a4c4a5f72.jpg',thumbnail_fit:'cover',published_at:'2026-06-01T07:30:00+07:00'}
     ];
-    const labels={instagram:{post:'Instagram Post',reel:'Instagram Reels'},youtube:{video:'YouTube',short:'YouTube Shorts'}};
+    const labels={instagram:{post:'Instagram Post',reel:'Instagram Reels'},youtube:{video:'YouTube',short:'YouTube Shorts'},tiktok:{video:'TikTok Video'}};
 
     function httpUrl(value,base){try{const parsed=new URL(value,base);return ['http:','https:'].includes(parsed.protocol)?parsed.href:null;}catch{return null;}}
-    function validItem(item,base){return Boolean(item&&typeof item.title==='string'&&item.title.trim()&&labels[item.platform]?.[item.type]&&['cover','contain'].includes(item.thumbnail_fit)&&Number.isFinite(Date.parse(item.published_at))&&httpUrl(item.url,base)&&httpUrl(item.thumbnail,base));}
+    function validTikTokUrl(value){try{const parsed=new URL(value),host=parsed.hostname.toLowerCase();if(parsed.protocol!=='https:'||parsed.username||parsed.password||parsed.port||parsed.href.length>2048)return false;return (['tiktok.com','www.tiktok.com','m.tiktok.com'].includes(host)&&/^\/@[A-Za-z0-9._-]{2,30}\/video\/[0-9]{10,25}\/?$/.test(parsed.pathname))||(['vm.tiktok.com','vt.tiktok.com'].includes(host)&&/^\/[A-Za-z0-9_-]{4,128}\/?$/.test(parsed.pathname));}catch{return false;}}
+    function validItem(item,base){return Boolean(item&&typeof item.title==='string'&&item.title.trim()&&labels[item.platform]?.[item.type]&&(item.platform!=='tiktok'||validTikTokUrl(item.url))&&['cover','contain'].includes(item.thumbnail_fit)&&Number.isFinite(Date.parse(item.published_at))&&httpUrl(item.url,base)&&httpUrl(item.thumbnail,base));}
     function createCard(item,base){
       const article=document.createElement('article');article.className='orb-card';
       const link=document.createElement('a');link.className='orb-link';link.href=httpUrl(item.url,base);link.target='_blank';link.rel='noopener noreferrer';link.setAttribute('aria-label',`Buka ${item.title}`);

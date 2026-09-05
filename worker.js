@@ -1,4 +1,10 @@
 const INSTAGRAM_CODE = /^[A-Za-z0-9_-]{5,30}$/;
+const TIKTOK_URL_MAX_LENGTH = 2048;
+const TIKTOK_REDIRECT_LIMIT = 3;
+const TIKTOK_OEMBED_ENDPOINT = 'https://www.tiktok.com/oembed';
+const TIKTOK_CANONICAL_HOSTS = new Set(['tiktok.com', 'www.tiktok.com', 'm.tiktok.com']);
+const TIKTOK_SHORT_HOSTS = new Set(['vm.tiktok.com', 'vt.tiktok.com']);
+const TIKTOK_THUMBNAIL_HOST_ROOTS = ['tiktokcdn.com', 'tiktokcdn-us.com', 'tiktokcdn-eu.com'];
 const GENERATOR_PATHS = new Set(['/generator', '/generator/', '/generator.html']);
 const SESSION_COOKIE = '__Host-orb_admin_session';
 const LOGIN_CSRF_COOKIE = '__Host-orb_login_csrf';
@@ -63,6 +69,18 @@ function errorResponse(message, status) {
       },
     },
   );
+}
+
+function publicApiError(request, message, status, allowedMethods) {
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Cache-Control': 'no-store',
+    'Content-Type': 'application/json; charset=utf-8',
+    'X-Content-Type-Options': 'nosniff',
+  };
+  if (allowedMethods) headers.Allow = allowedMethods.join(', ');
+  const body = request.method === 'HEAD' ? null : JSON.stringify({ error: message });
+  return new Response(body, { status, headers });
 }
 
 function methodNotAllowed(allowed, protectedRoute = true) {
@@ -432,6 +450,198 @@ async function instagramThumbnail(request, shortcode) {
   return new Response(request.method === 'HEAD' ? null : upstream.body, { status: 200, headers });
 }
 
+function strictHttpsUrl(value) {
+  if (typeof value !== 'string' || !value || value.length > TIKTOK_URL_MAX_LENGTH) return null;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === 'https:' && !parsed.username && !parsed.password && !parsed.port
+      ? parsed
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function isTikTokHost(hostname) {
+  return TIKTOK_CANONICAL_HOSTS.has(hostname) || TIKTOK_SHORT_HOSTS.has(hostname);
+}
+
+export function parseTikTokUrl(value) {
+  const parsed = strictHttpsUrl(value);
+  if (!parsed) return null;
+  const hostname = parsed.hostname.toLowerCase();
+  if (TIKTOK_CANONICAL_HOSTS.has(hostname)) {
+    const match = parsed.pathname.match(/^\/@([A-Za-z0-9._-]{2,30})\/video\/([0-9]{10,25})\/?$/u);
+    if (!match) return null;
+    parsed.hash = '';
+    return { kind: 'canonical', url: parsed.href, videoId: match[2] };
+  }
+  if (TIKTOK_SHORT_HOSTS.has(hostname) && /^\/[A-Za-z0-9_-]{4,128}\/?$/u.test(parsed.pathname)) {
+    parsed.hash = '';
+    return { kind: 'short', url: parsed.href };
+  }
+  return null;
+}
+
+function safeTikTokRedirect(value, base) {
+  if (typeof value !== 'string') return null;
+  try {
+    const parsed = new URL(value, base);
+    if (parsed.href.length > TIKTOK_URL_MAX_LENGTH
+      || parsed.protocol !== 'https:'
+      || parsed.username
+      || parsed.password
+      || parsed.port
+      || !isTikTokHost(parsed.hostname.toLowerCase())) return null;
+    parsed.hash = '';
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function isRedirect(response) {
+  return [301, 302, 303, 307, 308].includes(response.status);
+}
+
+async function discardBody(response) {
+  try {
+    await response.body?.cancel();
+  } catch {
+    // The body is best-effort cleanup only.
+  }
+}
+
+async function resolveTikTokUrl(info) {
+  if (info.kind === 'canonical') return info.url;
+  let current = info.url;
+  for (let redirects = 0; redirects < TIKTOK_REDIRECT_LIMIT; redirects += 1) {
+    const response = await fetch(current, {
+      method: 'GET',
+      redirect: 'manual',
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ORBContentFeed/1.0)' },
+    });
+    const location = response.headers.get('Location');
+    await discardBody(response);
+    if (!isRedirect(response) || !location) throw new Error('TikTok short link did not resolve');
+    const destination = safeTikTokRedirect(location, current);
+    if (!destination) throw new Error('Unsafe TikTok redirect');
+    const resolved = parseTikTokUrl(destination.href);
+    if (resolved?.kind === 'canonical') return resolved.url;
+    current = destination.href;
+  }
+  throw new Error('Too many TikTok redirects');
+}
+
+function safeTikTokThumbnailUrl(value, base) {
+  if (typeof value !== 'string') return null;
+  try {
+    const parsed = new URL(value, base);
+    const hostname = parsed.hostname.toLowerCase();
+    const allowedHost = TIKTOK_THUMBNAIL_HOST_ROOTS.some(
+      (root) => hostname === root || hostname.endsWith(`.${root}`),
+    );
+    if (parsed.href.length > TIKTOK_URL_MAX_LENGTH
+      || parsed.protocol !== 'https:'
+      || parsed.username
+      || parsed.password
+      || parsed.port
+      || !allowedHost) return null;
+    parsed.hash = '';
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchTikTokImage(value, method) {
+  let current = safeTikTokThumbnailUrl(value);
+  if (!current) throw new Error('Unsafe TikTok thumbnail URL');
+  for (let redirects = 0; redirects <= TIKTOK_REDIRECT_LIMIT; redirects += 1) {
+    const response = await fetch(current.href, {
+      method,
+      redirect: 'manual',
+      headers: {
+        Accept: 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8',
+        'User-Agent': 'Mozilla/5.0 (compatible; ORBContentFeed/1.0)',
+      },
+      cf: { cacheEverything: true, cacheTtl: 86400 },
+    });
+    if (!isRedirect(response)) return response;
+    const location = response.headers.get('Location');
+    await discardBody(response);
+    if (redirects === TIKTOK_REDIRECT_LIMIT || !location) throw new Error('Too many TikTok image redirects');
+    current = safeTikTokThumbnailUrl(location, current.href);
+    if (!current) throw new Error('Unsafe TikTok image redirect');
+  }
+  throw new Error('TikTok thumbnail is unavailable');
+}
+
+async function tiktokThumbnail(request, url) {
+  if (!['GET', 'HEAD'].includes(request.method)) {
+    return publicApiError(request, 'Method not allowed.', 405, ['GET', 'HEAD']);
+  }
+  if (typeof url !== 'string') return publicApiError(request, 'TikTok URL is required.', 400);
+  if (url.length > TIKTOK_URL_MAX_LENGTH) return publicApiError(request, 'TikTok URL is too long.', 414);
+  const info = parseTikTokUrl(url);
+  if (!info) return publicApiError(request, 'Invalid TikTok URL.', 400);
+
+  let stage = 'resolve-url';
+  try {
+    const canonicalUrl = await resolveTikTokUrl(info);
+    stage = 'fetch-oembed';
+    const oembedUrl = new URL(TIKTOK_OEMBED_ENDPOINT);
+    oembedUrl.searchParams.set('url', canonicalUrl);
+    const metadataResponse = await fetch(oembedUrl.href, {
+      method: 'GET',
+      redirect: 'manual',
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'Mozilla/5.0 (compatible; ORBContentFeed/1.0)',
+      },
+      cf: { cacheEverything: true, cacheTtl: 3600 },
+    });
+    const metadataType = metadataResponse.headers.get('Content-Type') || '';
+    if (!metadataResponse.ok || !/(?:application\/json|\+json)(?:;|$)/iu.test(metadataType)) {
+      await discardBody(metadataResponse);
+      return publicApiError(request, 'TikTok metadata is unavailable.', 502);
+    }
+    let metadata;
+    try {
+      metadata = await metadataResponse.json();
+    } catch {
+      return publicApiError(request, 'TikTok metadata is unavailable.', 502);
+    }
+    if (metadata?.type !== 'video' || metadata.provider_name !== 'TikTok') {
+      return publicApiError(request, 'TikTok metadata is unavailable.', 502);
+    }
+    stage = 'validate-thumbnail-url';
+    const thumbnailUrl = safeTikTokThumbnailUrl(metadata?.thumbnail_url);
+    if (!thumbnailUrl) return publicApiError(request, 'TikTok thumbnail is unavailable.', 502);
+    stage = 'fetch-thumbnail';
+    const imageResponse = await fetchTikTokImage(thumbnailUrl.href, request.method);
+    const contentType = imageResponse.headers.get('Content-Type') || '';
+    if (!imageResponse.ok || !contentType.toLowerCase().startsWith('image/')) {
+      await discardBody(imageResponse);
+      return publicApiError(request, 'TikTok thumbnail is unavailable.', 502);
+    }
+
+    const headers = new Headers({
+      'Access-Control-Allow-Origin': '*',
+      'Cache-Control': 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800',
+      'Content-Type': contentType,
+      'X-Content-Type-Options': 'nosniff',
+    });
+    const etag = imageResponse.headers.get('ETag');
+    if (etag) headers.set('ETag', etag);
+    return new Response(request.method === 'HEAD' ? null : imageResponse.body, { status: 200, headers });
+  } catch (error) {
+    const reason = String(error?.message || '').replace(/https?:\/\/\S+/gu, '<url>');
+    console.warn('TikTok thumbnail request failed.', { stage, error: error?.name || 'Error', reason });
+    return publicApiError(request, 'TikTok thumbnail is unavailable.', 502);
+  }
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -440,6 +650,12 @@ export default {
     if (GENERATOR_PATHS.has(url.pathname)) return handleGenerator(request, env);
     const match = url.pathname.match(/^\/api\/instagram-thumbnail\/([^/]+)$/u);
     if (match) return instagramThumbnail(request, match[1]);
+    if (url.pathname === '/api/tiktok-thumbnail') {
+      const values = url.searchParams.getAll('url');
+      const onlyUrlParameter = [...url.searchParams.keys()].every((name) => name === 'url');
+      const value = values.length === 1 && onlyUrlParameter ? values[0] : null;
+      return tiktokThumbnail(request, value);
+    }
     return env.ASSETS.fetch(request);
   },
 };

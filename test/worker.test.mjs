@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
-import { before, describe, test } from 'node:test';
+import { afterEach, before, describe, test } from 'node:test';
 import worker, {
   authConstants,
   createSessionToken,
   derivePasswordHash,
+  parseTikTokUrl,
   validateSessionToken,
 } from '../worker.js';
 
@@ -14,6 +15,11 @@ const salt = Uint8Array.from({ length: 16 }, (_, index) => index + 1);
 const signingKey = Buffer.alloc(32, 7).toString('base64url');
 const loginCsrf = Buffer.alloc(32, 9).toString('base64url');
 let env;
+const nativeFetch = globalThis.fetch;
+
+afterEach(() => {
+  globalThis.fetch = nativeFetch;
+});
 
 function rateLimiter(success = true) {
   return { async limit() { return { success }; } };
@@ -52,6 +58,32 @@ function loginInit(username = USERNAME, password = PASSWORD, next = '/generator.
     },
     body: new URLSearchParams({ username, password, next, csrf_token: loginCsrf }),
   };
+}
+
+function mockFetch(responders) {
+  const calls = [];
+  globalThis.fetch = async (input, init = {}) => {
+    calls.push({ input: String(input), init });
+    const responder = responders.shift();
+    assert.ok(responder, `Unexpected fetch to ${input}`);
+    return typeof responder === 'function' ? responder(input, init) : responder;
+  };
+  return calls;
+}
+
+function tiktokPath(value) {
+  return `/api/tiktok-thumbnail?url=${encodeURIComponent(value)}`;
+}
+
+function oembedResponse(thumbnailUrl = 'https://p16-sign-va.tiktokcdn.com/example.jpeg') {
+  return new Response(JSON.stringify({
+    version: '1.0',
+    type: 'video',
+    provider_name: 'TikTok',
+    thumbnail_url: thumbnailUrl,
+  }), {
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+  });
 }
 
 before(async () => {
@@ -104,6 +136,7 @@ describe('public and protected routes', () => {
     assert.equal(response.status, 200);
     assert.equal(response.headers.get('Location'), null);
   });
+
 });
 
 describe('login', () => {
@@ -244,6 +277,145 @@ describe('login', () => {
     const response = await dispatch('/login', { method: 'PUT' });
     assert.equal(response.status, 405);
     assert.equal(response.headers.get('Allow'), 'GET, POST');
+  });
+});
+
+describe('TikTok thumbnail proxy', { concurrency: false }, () => {
+  const canonicalUrl = 'https://www.tiktok.com/@orb.banten/video/1234567890123456789';
+
+  test('accepts canonical and short TikTok URLs with strict host validation', () => {
+    assert.deepEqual(parseTikTokUrl(canonicalUrl), {
+      kind: 'canonical',
+      url: canonicalUrl,
+      videoId: '1234567890123456789',
+    });
+    assert.equal(parseTikTokUrl('https://vm.tiktok.com/ZMexample/').kind, 'short');
+    assert.equal(parseTikTokUrl('https://vt.tiktok.com/ZMexample/').kind, 'short');
+  });
+
+  test('rejects fake domains, non-HTTPS URLs, unsupported paths, and credentials', () => {
+    for (const value of [
+      'https://www.tiktok.com.evil.example/@orb/video/1234567890123456789',
+      'https://evil-tiktok.com/@orb/video/1234567890123456789',
+      'http://www.tiktok.com/@orb/video/1234567890123456789',
+      'https://user:pass@www.tiktok.com/@orb/video/1234567890123456789',
+      'https://www.tiktok.com/@orb/photo/1234567890123456789',
+      'https://vm.tiktok.com/',
+    ]) assert.equal(parseTikTokUrl(value), null, value);
+  });
+
+  test('rejects an overlong URL and unsupported methods before fetching upstream', async () => {
+    const calls = mockFetch([]);
+    const longUrl = `https://www.tiktok.com/@orb/video/${'1'.repeat(2050)}`;
+    const tooLong = await dispatch(tiktokPath(longUrl));
+    assert.equal(tooLong.status, 414);
+    assert.match(await tooLong.text(), /too long/u);
+
+    const method = await dispatch(tiktokPath(canonicalUrl), { method: 'POST' });
+    assert.equal(method.status, 405);
+    assert.equal(method.headers.get('Allow'), 'GET, HEAD');
+    assert.equal(calls.length, 0);
+  });
+
+  test('uses the fixed official oEmbed endpoint and returns a proxied image for GET', async () => {
+    const calls = mockFetch([
+      oembedResponse(),
+      new Response('image-bytes', { headers: { 'Content-Type': 'image/jpeg', ETag: 'example-etag' } }),
+    ]);
+    const response = await dispatch(tiktokPath(canonicalUrl));
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('Content-Type'), 'image/jpeg');
+    assert.equal(response.headers.get('Access-Control-Allow-Origin'), '*');
+    assert.equal(response.headers.get('X-Content-Type-Options'), 'nosniff');
+    assert.match(response.headers.get('Cache-Control'), /s-maxage=86400/u);
+    assert.equal(await response.text(), 'image-bytes');
+
+    const metadataUrl = new URL(calls[0].input);
+    assert.equal(metadataUrl.origin + metadataUrl.pathname, 'https://www.tiktok.com/oembed');
+    assert.equal(metadataUrl.searchParams.get('url'), canonicalUrl);
+    assert.equal(calls[0].init.redirect, 'manual');
+    assert.equal(calls[1].input, 'https://p16-sign-va.tiktokcdn.com/example.jpeg');
+  });
+
+  test('handles HEAD without returning an image body', async () => {
+    const calls = mockFetch([
+      oembedResponse(),
+      new Response(null, { headers: { 'Content-Type': 'image/webp' } }),
+    ]);
+    const response = await dispatch(tiktokPath(canonicalUrl), { method: 'HEAD' });
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('Content-Type'), 'image/webp');
+    assert.equal(await response.text(), '');
+    assert.equal(calls[1].init.method, 'HEAD');
+  });
+
+  test('resolves short links manually and rejects redirects outside TikTok', async () => {
+    const calls = mockFetch([
+      new Response(null, { status: 302, headers: { Location: canonicalUrl } }),
+      oembedResponse(),
+      new Response('image', { headers: { 'Content-Type': 'image/jpeg' } }),
+    ]);
+    assert.equal((await dispatch(tiktokPath('https://vm.tiktok.com/ZMexample/'))).status, 200);
+    assert.equal(calls[0].init.redirect, 'manual');
+
+    const unsafeCalls = mockFetch([
+      new Response(null, { status: 302, headers: { Location: 'https://evil.example/video/123' } }),
+    ]);
+    const unsafe = await dispatch(tiktokPath('https://vt.tiktok.com/ZMexample/'));
+    assert.equal(unsafe.status, 502);
+    assert.match(await unsafe.text(), /thumbnail is unavailable/u);
+    assert.equal(unsafeCalls.length, 1);
+  });
+
+  test('stops resolving a short link after three redirects', async () => {
+    const calls = mockFetch([
+      new Response(null, { status: 302, headers: { Location: 'https://www.tiktok.com/t/first' } }),
+      new Response(null, { status: 302, headers: { Location: 'https://www.tiktok.com/t/second' } }),
+      new Response(null, { status: 302, headers: { Location: 'https://www.tiktok.com/t/third' } }),
+    ]);
+    const response = await dispatch(tiktokPath('https://vm.tiktok.com/ZMexample/'));
+    assert.equal(response.status, 502);
+    assert.equal(calls.length, 3);
+  });
+
+  test('returns a safe error when oEmbed fails or returns invalid JSON', async () => {
+    mockFetch([new Response('upstream details', { status: 500, headers: { 'Content-Type': 'text/html' } })]);
+    const failed = await dispatch(tiktokPath(canonicalUrl));
+    assert.equal(failed.status, 502);
+    assert.doesNotMatch(await failed.text(), /upstream details/u);
+
+    mockFetch([new Response('{broken', { headers: { 'Content-Type': 'application/json' } })]);
+    const invalid = await dispatch(tiktokPath(canonicalUrl));
+    assert.equal(invalid.status, 502);
+    assert.match(await invalid.text(), /metadata is unavailable/u);
+  });
+
+  test('rejects redirects and incomplete oEmbed metadata', async () => {
+    mockFetch([new Response(null, { status: 302, headers: { Location: 'https://evil.example' } })]);
+    const redirected = await dispatch(tiktokPath(canonicalUrl));
+    assert.equal(redirected.status, 502);
+
+    mockFetch([new Response(JSON.stringify({
+      thumbnail_url: 'https://p16-sign-va.tiktokcdn.com/example.jpeg',
+    }), { headers: { 'Content-Type': 'application/json' } })]);
+    const incomplete = await dispatch(tiktokPath(canonicalUrl));
+    assert.equal(incomplete.status, 502);
+    assert.match(await incomplete.text(), /metadata is unavailable/u);
+  });
+
+  test('rejects unsafe thumbnail URLs and non-image upstream responses', async () => {
+    mockFetch([oembedResponse('https://evil.example/thumbnail.jpg')]);
+    const unsafe = await dispatch(tiktokPath(canonicalUrl));
+    assert.equal(unsafe.status, 502);
+    assert.match(await unsafe.text(), /thumbnail is unavailable/u);
+
+    mockFetch([
+      oembedResponse(),
+      new Response('<html>not an image</html>', { headers: { 'Content-Type': 'text/html' } }),
+    ]);
+    const wrongType = await dispatch(tiktokPath(canonicalUrl));
+    assert.equal(wrongType.status, 502);
+    assert.match(await wrongType.text(), /thumbnail is unavailable/u);
   });
 });
 

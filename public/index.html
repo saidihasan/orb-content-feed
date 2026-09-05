@@ -19,7 +19,7 @@
 <body>
   <header class="topbar"><div class="shell"><a class="brand" href="index.html"><span class="brand-mark">O</span><span>ORB Content Feed<small>BIRO ORGANISASI · PROVINSI BANTEN</small></span></a></div></header>
   <main class="shell">
-    <section class="hero"><p class="eyebrow">Static content service</p><h1>Konten terbaru, dalam satu feed ringan.</h1><p class="hero-text">Halaman diagnosis publik untuk memastikan konten Instagram dan YouTube Biro Organisasi siap ditampilkan di website utama.</p><div class="actions"><a class="button primary" href="latest.json">Buka latest.json</a><a class="button" href="generator.html">Buka generator admin</a></div></section>
+    <section class="hero"><p class="eyebrow">Static content service</p><h1>Konten terbaru, dalam satu feed ringan.</h1><p class="hero-text">Halaman diagnosis publik untuk memastikan konten Instagram, YouTube, dan TikTok Biro Organisasi siap ditampilkan di website utama.</p><div class="actions"><a class="button primary" href="latest.json">Buka latest.json</a><a class="button" href="generator.html">Buka generator admin</a></div></section>
     <section class="status-panel" aria-label="Status feed"><div class="metric"><span>Status feed</span><strong id="feedStatus" class="status">Memuat feed…</strong></div><div class="metric"><span>Pembaruan terakhir</span><strong id="updatedAt">—</strong></div><div class="metric"><span>Jumlah item</span><strong id="itemCount">—</strong></div></section>
     <section aria-labelledby="latestTitle"><div class="section-head"><div><p class="eyebrow">Pilihan otomatis</p><h2 id="latestTitle">Tiga konten terbaru</h2></div><p>Diurutkan berdasarkan tanggal publikasi.</p></div><div id="feedGrid" class="feed-grid" aria-live="polite"><div class="empty">Menyiapkan konten…</div></div></section>
   </main>
@@ -32,14 +32,22 @@
       const updatedEl = document.querySelector('#updatedAt');
       const countEl = document.querySelector('#itemCount');
       const gridEl = document.querySelector('#feedGrid');
-      const labels = {instagram:{post:'Instagram Post',reel:'Instagram Reels'},youtube:{video:'YouTube',short:'YouTube Shorts'}};
+      const labels = {instagram:{post:'Instagram Post',reel:'Instagram Reels'},youtube:{video:'YouTube',short:'YouTube Shorts'},tiktok:{video:'TikTok Video'}};
 
       function safeHttpUrl(value, base) {
         try { const url = new URL(value, base); return ['http:','https:'].includes(url.protocol) ? url.href : null; }
         catch { return null; }
       }
+      function validTikTokUrl(value) {
+        try {
+          const url = new URL(value); const host = url.hostname.toLowerCase();
+          if (url.protocol !== 'https:' || url.username || url.password || url.port || url.href.length > 2048) return false;
+          return (['tiktok.com','www.tiktok.com','m.tiktok.com'].includes(host) && /^\/@[A-Za-z0-9._-]{2,30}\/video\/[0-9]{10,25}\/?$/.test(url.pathname))
+            || (['vm.tiktok.com','vt.tiktok.com'].includes(host) && /^\/[A-Za-z0-9_-]{4,128}\/?$/.test(url.pathname));
+        } catch { return false; }
+      }
       function validItem(item) {
-        return item && typeof item.title === 'string' && item.title.trim() && labels[item.platform]?.[item.type] && Number.isFinite(Date.parse(item.published_at)) && safeHttpUrl(item.url, feedUrl) && safeHttpUrl(item.thumbnail, feedUrl);
+        return item && typeof item.title === 'string' && item.title.trim() && labels[item.platform]?.[item.type] && (item.platform !== 'tiktok' || validTikTokUrl(item.url)) && Number.isFinite(Date.parse(item.published_at)) && safeHttpUrl(item.url, feedUrl) && safeHttpUrl(item.thumbnail, feedUrl);
       }
       function formatDate(value) {
         return new Intl.DateTimeFormat('id-ID',{dateStyle:'long',timeStyle:'short',timeZone:'Asia/Jakarta'}).format(new Date(value));

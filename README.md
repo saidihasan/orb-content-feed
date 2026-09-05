@@ -1,8 +1,8 @@
 # ORB Static Content Feed
 
-Feed konten statis ringan untuk **Biro Organisasi Setda Provinsi Banten**. Admin mengelola daftar Instagram dan YouTube melalui halaman visual yang dilindungi login, lalu mengunduh `latest.json` tanpa menulis JSON secara manual. Situs utama mengambil file tersebut dengan `fetch()` dan menampilkan maksimal tiga konten berdasarkan `published_at` terbaru.
+Feed konten statis ringan untuk **Biro Organisasi Setda Provinsi Banten**. Admin mengelola daftar Instagram, YouTube, dan TikTok melalui halaman visual yang dilindungi login, lalu mengunduh `latest.json` tanpa menulis JSON secara manual. Situs utama mengambil file tersebut dengan `fetch()` dan menampilkan maksimal tiga konten berdasarkan `published_at` terbaru.
 
-Antarmuka menggunakan HTML, CSS, dan JavaScript vanilla. Cloudflare Worker menangani autentikasi admin serta memproksikan thumbnail publik Instagram agar dapat ditampilkan lintas domain. Tidak ada database, API token, atau credential Instagram.
+Antarmuka menggunakan HTML, CSS, dan JavaScript vanilla. Cloudflare Worker menangani autentikasi admin serta memproksikan thumbnail publik Instagram dan TikTok agar dapat ditampilkan lintas domain. Metadata TikTok diambil dari oEmbed resmi tanpa API key, database, atau credential media sosial.
 
 ## Struktur
 
@@ -11,10 +11,10 @@ Antarmuka menggunakan HTML, CSS, dan JavaScript vanilla. Cloudflare Worker menan
 - `public/feed-loader.js` — pemuat dan validasi feed production tanpa mengubah data editor saat terjadi kegagalan.
 - `public/latest.json` — data feed publik; boleh menyimpan seluruh riwayat konten.
 - `public/website-integration.html` — demonstrasi dan blok integrasi siap salin-tempel.
-- `worker.js` — autentikasi admin, sesi, dan proxy terbatas untuk thumbnail publik Instagram.
+- `worker.js` — autentikasi admin, sesi, dan proxy terbatas untuk thumbnail publik Instagram dan TikTok.
 - `scripts/generate-auth-secrets.mjs` — generator lokal untuk salt, hash password, dan kunci sesi.
 - `test/worker.test.mjs` — pengujian rute publik dan autentikasi.
-- `public/thumbnails/` — aset thumbnail lokal untuk Instagram.
+- `public/thumbnails/` — aset thumbnail lokal untuk seluruh platform.
 - `public/_headers` — CORS dan cache headers untuk aset Cloudflare Worker.
 - `.gitignore` — file lokal yang tidak boleh masuk repository.
 
@@ -49,7 +49,7 @@ Kemudian buka:
 - `http://localhost:8787/generator` untuk generator admin.
 - `http://localhost:8787/website-integration` untuk contoh integrasi.
 
-Gunakan server Worker lokal agar proxy thumbnail Instagram tersedia dan perilakunya sama dengan deployment.
+Gunakan server Worker lokal agar proxy thumbnail Instagram dan TikTok tersedia dan perilakunya sama dengan deployment.
 
 ## Autentikasi admin
 
@@ -61,7 +61,7 @@ Gunakan server Worker lokal agar proxy thumbnail Instagram tersedia dan perilaku
 - Sesi berakhir tepat setelah 8 jam dan tidak diperpanjang oleh aktivitas.
 - Login dibatasi sekitar lima percobaan per menit per sumber oleh Rate Limiting binding Cloudflare.
 - Form login dilindungi token CSRF cookie+form berumur 10 menit; opaque origin hanya diterima bila browser menandainya `same-origin`.
-- `latest.json`, halaman diagnosis, thumbnail, dan API thumbnail Instagram tetap publik.
+- `latest.json`, halaman diagnosis, thumbnail, serta API thumbnail Instagram dan TikTok tetap publik.
 
 Jalankan pengujian keamanan dan regresi dengan:
 
@@ -90,20 +90,39 @@ npm test
 }
 ```
 
+Contoh item TikTok (dokumentasi saja; tidak ditambahkan ke `public/latest.json`):
+
+```json
+{
+  "id": "contoh-video-tiktok",
+  "platform": "tiktok",
+  "type": "video",
+  "title": "Contoh Video TikTok",
+  "url": "https://www.tiktok.com/@username/video/1234567890123456789",
+  "thumbnail": "api/tiktok-thumbnail?url=https%3A%2F%2Fwww.tiktok.com%2F%40username%2Fvideo%2F1234567890123456789",
+  "thumbnail_fit": "cover",
+  "published_at": "2026-08-26T09:00:00+07:00"
+}
+```
+
 Enum yang didukung:
 
-- `platform`: `instagram`, `youtube`
-- `type`: `post`, `reel`, `video`, `short`
+- `platform`: `instagram`, `youtube`, `tiktok`
+- `type`: Instagram memakai `post` atau `reel`; YouTube memakai `video` atau `short`; TikTok selalu memakai `video`
 - `thumbnail_fit`: `cover`, `contain`
 
 Gunakan ID unik dan stabil serta tanggal ISO-8601 dengan offset `+07:00`. Urutan array tidak menentukan urutan tampilan; aplikasi mengurutkan `published_at` terbaru.
+
+TikTok menerima URL video kanonis HTTPS berbentuk `https://www.tiktok.com/@username/video/ID`. Tautan berbagi pendek HTTPS dari `vm.tiktok.com` dan `vt.tiktok.com` juga diterima. Generator menyimpan thumbnail otomatis sebagai URL relatif ke `/api/tiktok-thumbnail`; Worker menyelesaikan short link dengan maksimal tiga redirect yang semuanya harus tetap menuju hostname TikTok yang diizinkan, lalu memanggil endpoint oEmbed resmi yang tetap.
+
+Jika thumbnail otomatis tidak tersedia, admin dapat menggantinya dengan URL gambar HTTPS atau file lokal seperti `thumbnails/video-tiktok.webp`. Thumbnail manual tidak ditimpa ketika URL konten diedit.
 
 ## Workflow admin harian
 
 1. Buka `generator.html` dan login sebagai admin.
 2. Klik **Muat Feed Aktif** untuk mengambil data production, atau gunakan **Impor JSON** untuk file lokal.
 3. Tambah, edit, hapus, duplikat, atau atur posisi konten.
-4. Thumbnail Instagram dan YouTube terisi otomatis. Jika thumbnail Instagram tidak tersedia, masukkan URL lain atau tambahkan gambar ke folder `thumbnails/`.
+4. Thumbnail Instagram, YouTube, dan TikTok terisi otomatis. Jika thumbnail tidak tersedia, masukkan URL gambar HTTPS atau tambahkan gambar ke folder `thumbnails/`.
 5. Unduh `latest.json` dari generator.
 6. Ganti `latest.json` di repository dan tambahkan thumbnail baru.
 7. Commit dan push perubahan.
@@ -190,6 +209,8 @@ const contentFeedUrl =
 - **Thumbnail Instagram tidak muncul:** pastikan posting publik dan URL memakai format `instagram.com/p/…` atau `instagram.com/reel/…`. Endpoint publik Instagram dapat berubah; gunakan URL thumbnail manual atau file di `thumbnails/` sebagai fallback.
 - **Thumbnail lain tidak muncul:** periksa URL HTTPS atau nama/path file di `thumbnails/`, termasuk kapitalisasi.
 - **YouTube tidak terdeteksi:** gunakan format `youtube.com/watch?v=…`, `youtu.be/…`, atau `youtube.com/shorts/…`.
+- **TikTok tidak terdeteksi:** gunakan URL HTTPS kanonis `tiktok.com/@username/video/ID` atau short link dari hostname tepat `vm.tiktok.com`/`vt.tiktok.com`. Domain mirip seperti `tiktok.com.example` sengaja ditolak.
+- **Thumbnail TikTok tidak muncul:** pastikan video publik dan dapat diakses oleh oEmbed TikTok. Video privat, dihapus, dibatasi wilayah/usia, short link dengan lebih dari tiga redirect, perubahan format upstream, atau URL thumbnail di luar CDN TikTok akan memakai fallback manual; gunakan URL gambar HTTPS atau file di `thumbnails/`.
 - **Login lokal tidak tersedia:** pastikan keempat nilai autentikasi ada di `.dev.vars`, lalu mulai ulang `wrangler dev`.
 - **Terlalu banyak percobaan login:** tunggu sekurangnya 60 detik sebelum mencoba kembali.
 - **Sesi berakhir:** login kembali; sesi admin memang berakhir tetap setelah delapan jam.

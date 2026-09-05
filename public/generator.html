@@ -23,16 +23,16 @@
 <body>
   <header class="topbar"><div class="shell topbar-inner"><a class="brand" href="index.html"><span class="brand-mark">O</span><span>ORB Feed Generator<small>ADMIN · BIRO ORGANISASI BANTEN</small></span></a><div class="top-actions"><a class="top-link" href="index.html">Lihat halaman publik</a><form class="logout-form" action="/api/logout" method="post"><button class="logout-button" type="submit">Keluar</button></form></div></div></header>
   <main class="shell">
-    <section class="intro"><p class="eyebrow">Editor tanpa kode</p><h1>Kelola konten terbaru.</h1><p>Tambah Instagram atau YouTube, periksa pratinjau, lalu unduh <strong>latest.json</strong> yang siap dipublikasikan.</p></section>
+    <section class="intro"><p class="eyebrow">Editor tanpa kode</p><h1>Kelola konten terbaru.</h1><p>Tambah Instagram, YouTube, atau TikTok, periksa pratinjau, lalu unduh <strong>latest.json</strong> yang siap dipublikasikan.</p></section>
     <section class="feed-source" aria-label="Informasi feed aktif"><div><span class="feed-source-label">Feed aktif production</span><a id="activeFeedUrl" class="feed-source-url" href="https://orb-content-feed.saidihasan.workers.dev/latest.json" target="_blank" rel="noopener noreferrer">https://orb-content-feed.saidihasan.workers.dev/latest.json</a></div><div class="feed-source-actions"><a class="btn" href="https://orb-content-feed.saidihasan.workers.dev/latest.json" target="_blank" rel="noopener noreferrer">Buka feed publik</a><a class="btn" href="https://orb-content-feed.saidihasan.workers.dev/" target="_blank" rel="noopener noreferrer">Buka diagnosis</a></div></section>
     <div class="toolbar" aria-label="Aksi data"><button id="saveButton" class="btn primary" type="button">Simpan</button><button id="loadActiveButton" class="btn" type="button">Muat Feed Aktif</button><button id="downloadButton" class="btn" type="button">Unduh latest.json</button><button id="copyButton" class="btn" type="button">Salin JSON</button><span class="spacer"></span><label for="importInput" class="btn" style="display:inline-flex;align-items:center">Impor JSON</label><input id="importInput" class="file-input" type="file" accept="application/json,.json"><button id="resetButton" class="btn danger" type="button">Reset</button></div>
     <div class="layout">
       <section class="panel form-panel" aria-labelledby="formTitle"><div class="panel-head"><h2 id="formTitle">Tambah konten</h2><span id="editBadge" class="edit-badge">Mode edit</span></div>
         <form id="itemForm" novalidate>
           <div class="field"><label for="title">Judul Konten</label><input id="title" class="control" name="title" maxlength="160" autocomplete="off" required></div>
-          <div class="field-row"><div class="field"><label for="platform">Platform</label><select id="platform" class="control" name="platform"><option value="instagram">Instagram</option><option value="youtube">YouTube</option></select></div><div class="field"><label for="type">Jenis Konten</label><select id="type" class="control" name="type"></select></div></div>
-          <div class="field"><label for="url">URL Instagram/YouTube</label><input id="url" class="control" name="url" type="url" inputmode="url" placeholder="https://…" required><span class="hint">Platform dan jenis akan dikenali otomatis.</span></div>
-          <div class="field"><label for="thumbnail">URL Thumbnail</label><input id="thumbnail" class="control" name="thumbnail" inputmode="url" placeholder="https://… atau thumbnails/gambar.webp" required><span class="hint">Instagram dan YouTube akan mengisi thumbnail otomatis; tetap dapat diganti.</span></div>
+          <div class="field-row"><div class="field"><label for="platform">Platform</label><select id="platform" class="control" name="platform"><option value="instagram">Instagram</option><option value="youtube">YouTube</option><option value="tiktok">TikTok</option></select></div><div class="field"><label for="type">Jenis Konten</label><select id="type" class="control" name="type"></select></div></div>
+          <div class="field"><label for="url">URL Instagram/YouTube/TikTok</label><input id="url" class="control" name="url" type="url" inputmode="url" placeholder="https://www.tiktok.com/@username/video/1234567890123456789" required><span class="hint">Platform dan jenis akan dikenali otomatis, termasuk tautan vm.tiktok.com dan vt.tiktok.com.</span></div>
+          <div class="field"><label for="thumbnail">URL Thumbnail</label><input id="thumbnail" class="control" name="thumbnail" inputmode="url" placeholder="https://… atau thumbnails/gambar.webp" required><span class="hint">Instagram, YouTube, dan TikTok akan mengisi thumbnail otomatis; thumbnail yang Anda edit manual tidak akan ditimpa.</span></div>
           <div class="field-row"><div class="field"><label for="date">Tanggal Publikasi</label><input id="date" class="control" name="date" type="date" required></div><div class="field"><label for="time">Waktu Publikasi</label><input id="time" class="control" name="time" type="time" required></div></div>
           <div class="field"><label for="thumbnailFit">Tampilan Thumbnail</label><select id="thumbnailFit" class="control" name="thumbnail_fit"><option value="cover">Cover</option><option value="contain">Contain</option></select></div>
           <div class="form-actions"><button id="cancelEdit" class="btn" type="button" hidden>Batal</button><button class="btn primary" type="submit"><span id="submitLabel">Tambah konten</span></button></div>
@@ -50,9 +50,10 @@
     const FEED_NAME = 'Biro Organisasi Setda Provinsi Banten';
     const PRODUCTION_ORIGIN = 'https://orb-content-feed.saidihasan.workers.dev';
     const ACTIVE_FEED_URL = `${PRODUCTION_ORIGIN}/latest.json`;
-    const ENUMS = {platform:['instagram','youtube'],type:['post','reel','video','short'],thumbnail_fit:['cover','contain']};
-    const TYPE_OPTIONS = {instagram:[['post','Post'],['reel','Reel']],youtube:[['video','Video'],['short','Short']]};
-    const TYPE_LABELS = {instagram:{post:'Instagram Post',reel:'Instagram Reels'},youtube:{video:'YouTube',short:'YouTube Shorts'}};
+    const TIKTOK_URL_MAX_LENGTH = 2048;
+    const ENUMS = {platform:['instagram','youtube','tiktok'],type:['post','reel','video','short'],thumbnail_fit:['cover','contain']};
+    const TYPE_OPTIONS = {instagram:[['post','Post'],['reel','Reel']],youtube:[['video','Video'],['short','Short']],tiktok:[['video','Video']]};
+    const TYPE_LABELS = {instagram:{post:'Instagram Post',reel:'Instagram Reels'},youtube:{video:'YouTube',short:'YouTube Shorts'},tiktok:{video:'TikTok Video'}};
     const DEFAULT_FEED = {feed_name:FEED_NAME,updated_at:'2026-08-26T10:00:00+07:00',items:[
       {id:'dirgahayu-ri-81',platform:'instagram',type:'post',title:'Dirgahayu Republik Indonesia ke-81',url:'https://www.instagram.com/p/DcHjXbOzfUA/',thumbnail:'thumbnails/dirgahayu-ri-81.webp',thumbnail_fit:'contain',published_at:'2026-08-17T08:00:00+07:00'},
       {id:'hari-lahir-pancasila-2026',platform:'instagram',type:'post',title:'Hari Lahir Pancasila',url:'https://www.instagram.com/p/DZAmWjZNhLS/',thumbnail:'thumbnails/hari-lahir-pancasila.webp',thumbnail_fit:'cover',published_at:'2026-06-01T07:30:00+07:00'},
@@ -66,7 +67,7 @@
     function clone(value){ return JSON.parse(JSON.stringify(value)); }
     function notify(message,kind='success'){ const el=document.createElement('div'); el.className=`toast ${kind}`; el.textContent=message; $('#toastRegion').append(el); window.setTimeout(()=>el.remove(),4200); }
     function safeHttpUrl(value){ try{ const parsed=new URL(value); return ['http:','https:'].includes(parsed.protocol) ? parsed : null; }catch{return null;} }
-    function safeThumbnail(value){ if(safeHttpUrl(value)) return true; return typeof value==='string' && (/^(?:\.\/)?thumbnails\/[A-Za-z0-9._/-]+$/.test(value) || /^\/?api\/instagram-thumbnail\/[A-Za-z0-9_-]{5,30}$/.test(value)) && !value.includes('..'); }
+    function safeThumbnail(value){ if(safeHttpUrl(value)) return true; if(typeof value!=='string'||value.includes('..'))return false; if(/^(?:\.\/)?thumbnails\/[A-Za-z0-9._/-]+$/.test(value)||/^\/?api\/instagram-thumbnail\/[A-Za-z0-9_-]{5,30}$/.test(value))return true; try{const parsed=new URL(value,PRODUCTION_ORIGIN);return parsed.origin===PRODUCTION_ORIGIN&&parsed.pathname==='/api/tiktok-thumbnail'&&parsed.searchParams.getAll('url').length===1&&[...parsed.searchParams.keys()].every(name=>name==='url')&&Boolean(tiktokInfo(parsed.searchParams.get('url')));}catch{return false;} }
     function isIsoDate(value){ return typeof value==='string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:\d{2})$/.test(value) && Number.isFinite(Date.parse(value)); }
     function instagramInfo(value){
       const parsed=safeHttpUrl(value);if(!parsed||!/(^|\.)instagram\.com$/i.test(parsed.hostname))return null;
@@ -79,15 +80,23 @@
       else if(/(^|\.)youtube\.com$/i.test(parsed.hostname)){ const parts=parsed.pathname.split('/').filter(Boolean); if(parts[0]==='shorts'){id=parts[1];isShort=true;} else if(parts[0]==='watch') id=parsed.searchParams.get('v'); }
       return id && /^[A-Za-z0-9_-]{6,20}$/.test(id) ? {id,isShort,thumbnail:`https://img.youtube.com/vi/${id}/maxresdefault.jpg`} : null;
     }
+    function tiktokInfo(value){
+      if(typeof value!=='string'||!value||value.length>TIKTOK_URL_MAX_LENGTH)return null;
+      let parsed;try{parsed=new URL(value);}catch{return null;}
+      if(parsed.protocol!=='https:'||parsed.username||parsed.password||parsed.port)return null;
+      const host=parsed.hostname.toLowerCase(),canonical=['tiktok.com','www.tiktok.com','m.tiktok.com'].includes(host)&&/^\/@[A-Za-z0-9._-]{2,30}\/video\/[0-9]{10,25}\/?$/.test(parsed.pathname),short=['vm.tiktok.com','vt.tiktok.com'].includes(host)&&/^\/[A-Za-z0-9_-]{4,128}\/?$/.test(parsed.pathname);
+      if(!canonical&&!short)return null;parsed.hash='';const target=parsed.href;return {thumbnail:`api/tiktok-thumbnail?url=${encodeURIComponent(target)}`};
+    }
     function updateTypes(selected){ const options=TYPE_OPTIONS[platform.value]; type.replaceChildren(...options.map(([value,label])=>{const option=document.createElement('option');option.value=value;option.textContent=label;return option;})); if(options.some(([value])=>value===selected)) type.value=selected; }
     function detectUrl(){
-      const value=urlInput.value.trim(),yt=youtubeInfo(value),ig=instagramInfo(value);
-      if(yt){ platform.value='youtube'; updateTypes(yt.isShort?'short':'video'); type.value=yt.isShort?'short':'video'; if(!thumbnail.value.trim() || thumbnail.value===lastAutoThumbnail){thumbnail.value=yt.thumbnail;lastAutoThumbnail=yt.thumbnail;} }
+      const value=urlInput.value.trim(),yt=youtubeInfo(value),ig=instagramInfo(value),tk=tiktokInfo(value);
+      if(tk){platform.value='tiktok';updateTypes('video');type.value='video';if(!thumbnail.value.trim()||thumbnail.value===lastAutoThumbnail){thumbnail.value=tk.thumbnail;lastAutoThumbnail=tk.thumbnail;}}
+      else if(yt){ platform.value='youtube'; updateTypes(yt.isShort?'short':'video'); type.value=yt.isShort?'short':'video'; if(!thumbnail.value.trim() || thumbnail.value===lastAutoThumbnail){thumbnail.value=yt.thumbnail;lastAutoThumbnail=yt.thumbnail;} }
       else if(ig){platform.value='instagram';updateTypes(ig.kind);type.value=ig.kind;if(!thumbnail.value.trim()||thumbnail.value===lastAutoThumbnail){thumbnail.value=ig.thumbnail;lastAutoThumbnail=ig.thumbnail;}}
     }
     function slugify(value){ return value.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,52)||'konten'; }
     function uniqueId(title,exclude){ const base=slugify(title); let candidate=base,n=2; const used=new Set(feed.items.filter(item=>item.id!==exclude).map(item=>item.id)); while(used.has(candidate)) candidate=`${base}-${n++}`; return candidate; }
-    function validatePlatformUrl(value,selectedPlatform){ const parsed=safeHttpUrl(value); if(!parsed) return 'URL harus menggunakan http atau https.'; if(selectedPlatform==='instagram' && !/(^|\.)instagram\.com$/i.test(parsed.hostname)) return 'URL Instagram tidak valid.'; if(selectedPlatform==='youtube' && !youtubeInfo(value)) return 'URL YouTube tidak valid.'; return null; }
+    function validatePlatformUrl(value,selectedPlatform){ const parsed=safeHttpUrl(value); if(!parsed) return 'URL harus menggunakan http atau https.'; if(selectedPlatform==='instagram' && !/(^|\.)instagram\.com$/i.test(parsed.hostname)) return 'URL Instagram tidak valid.'; if(selectedPlatform==='youtube' && !youtubeInfo(value)) return 'URL YouTube tidak valid.'; if(selectedPlatform==='tiktok'&&!tiktokInfo(value)) return 'URL TikTok tidak valid. Gunakan URL video HTTPS dari tiktok.com, vm.tiktok.com, atau vt.tiktok.com.'; return null; }
     function validateItem(item){
       if(!item.title?.trim()) return 'Judul belum diisi.';
       if(!ENUMS.platform.includes(item.platform)) return 'Platform tidak valid.';
