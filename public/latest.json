@@ -1,7 +1,17 @@
 {
   "feed_name": "Biro Organisasi Setda Provinsi Banten",
-  "updated_at": "2026-09-01T12:00:01+07:00",
+  "updated_at": "2026-09-15T07:40:21+07:00",
   "items": [
+    {
+      "id": "biro-organisasi-sekretariat-daerah-provinsi-banten-m",
+      "platform": "instagram",
+      "type": "post",
+      "title": "Biro Organisasi Sekretariat Daerah Provinsi Banten mengikuti Coaching Clinic Rencana Tindak Lanjut SPI 2025",
+      "url": "https://www.instagram.com/p/Dc6REJfmnrT/",
+      "thumbnail": "api/instagram-thumbnail/Dc6REJfmnrT",
+      "thumbnail_fit": "cover",
+      "published_at": "2026-09-15T07:39:00+07:00"
+    },
     {
       "id": "selamat-memperingati-maulid-nabi-muhammad-saw-1448-h",
       "platform": "instagram",
