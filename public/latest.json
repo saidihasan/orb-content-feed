@@ -1,7 +1,17 @@
 {
   "feed_name": "Biro Organisasi Setda Provinsi Banten",
-  "updated_at": "2026-09-15T07:40:21+07:00",
+  "updated_at": "2026-09-15T07:47:50+07:00",
   "items": [
+    {
+      "id": "partisipasi-kafilah-provinsi-banten-dimeriahkan-oleh",
+      "platform": "tiktok",
+      "type": "video",
+      "title": "Partisipasi Kafilah Provinsi Banten dimeriahkan oleh pagelaran Debus Menes binaan Dinas Pendidikan dan Kebudayaan Provinsi Banten",
+      "url": "https://www.tiktok.com/@biro.organisasi.banten/video/7685025441958153492",
+      "thumbnail": "api/tiktok-thumbnail?url=https%3A%2F%2Fwww.tiktok.com%2F%40biro.organisasi.banten%2Fvideo%2F7685025441958153492",
+      "thumbnail_fit": "cover",
+      "published_at": "2026-09-15T07:40:00+07:00"
+    },
     {
       "id": "biro-organisasi-sekretariat-daerah-provinsi-banten-m",
       "platform": "instagram",
