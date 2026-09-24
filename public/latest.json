@@ -1,7 +1,17 @@
 {
   "feed_name": "Biro Organisasi Setda Provinsi Banten",
-  "updated_at": "2026-09-15T07:47:50+07:00",
+  "updated_at": "2026-09-24T15:51:52+07:00",
   "items": [
+    {
+      "id": "pemerintah-provinsi-banten-melalui-biro-organisasi-s",
+      "platform": "instagram",
+      "type": "post",
+      "title": "Pemerintah Provinsi Banten melalui Biro Organisasi Setda Provinsi Banten saat ini tengah melaksanakan rangkaian Verifikasi, Penilaian, dan Visitasi Budaya Kerja",
+      "url": "https://www.instagram.com/p/DdoXbC5yfP3/",
+      "thumbnail": "api/instagram-thumbnail/DdoXbC5yfP3",
+      "thumbnail_fit": "cover",
+      "published_at": "2026-09-24T15:51:00+07:00"
+    },
     {
       "id": "partisipasi-kafilah-provinsi-banten-dimeriahkan-oleh",
       "platform": "tiktok",
