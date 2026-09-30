@@ -1,7 +1,17 @@
 {
   "feed_name": "Biro Organisasi Setda Provinsi Banten",
-  "updated_at": "2026-09-24T15:51:52+07:00",
+  "updated_at": "2026-09-30T10:07:01+07:00",
   "items": [
+    {
+      "id": "penyusunan-rancangan-keputusan-gubernur-tentang-sop-",
+      "platform": "tiktok",
+      "type": "video",
+      "title": "PENYUSUNAN RANCANGAN KEPUTUSAN GUBERNUR TENTANG SOP SEKRETARIAT DAERAH PROVINSI BANTEN",
+      "url": "https://www.tiktok.com/@biro.organisasi.banten/video/7691087656108739861",
+      "thumbnail": "api/tiktok-thumbnail?url=https%3A%2F%2Fwww.tiktok.com%2F%40biro.organisasi.banten%2Fvideo%2F7691087656108739861",
+      "thumbnail_fit": "cover",
+      "published_at": "2026-09-30T10:05:00+07:00"
+    },
     {
       "id": "pemerintah-provinsi-banten-melalui-biro-organisasi-s",
       "platform": "instagram",
